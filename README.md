@@ -10,5 +10,23 @@
 
 
 nidas.dev
+
+
+
+
+
+
+
+
+
 Leonidas Papadopoulos 
+
+
+
+
+
+
+
+
+
 personal webpage & resume
