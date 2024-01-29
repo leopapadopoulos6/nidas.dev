@@ -20,7 +20,7 @@ function App() {
           <VStack spacing={8}>
             <Logo h="40vmin" pointerEvents="none" />
             <Text>
-              This is my <Code colorScheme='red' fontSize="xl">portfolio</Code>.
+              Currently:<Code colorScheme='red' fontSize="xl">UNDER CONSTRUCTION</Code>.
             </Text>
           </VStack>
         </Grid>
