@@ -12,7 +12,7 @@ const Layout = ({ children, header, footer, ...props }) => (
       borderBottom: { base: '1px solid', sm: 'none' },
       borderLeft: '1px solid',
       borderRight: '1px solid',
-      ColorModeSwitcher
+      
 
     },
       header && React.createElement(header, null),
