@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Flex, Box } from '@chakra-ui/react';
-import { ColorModeSwitcher } from '../../themes/ColorModeSwitcher';
+
 
 const Layout = ({ children, header, footer, ...props }) => (
   React.createElement(Container, { maxW: 'container.xl' },
