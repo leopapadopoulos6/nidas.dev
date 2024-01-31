@@ -12,7 +12,7 @@ const Construction = (props) => {
             <VStack spacing={8}>
                 <Logo h="40vmin" pointerEvents="none" />
                 <Text>
-                    <Code colorScheme='red' fontSize="xl">{props}</Code>.
+                    <Code colorScheme='red' fontSize="xl">{props}</Code>
                 </Text>
             </VStack>
         </Grid>
