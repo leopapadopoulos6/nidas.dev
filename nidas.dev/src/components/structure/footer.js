@@ -30,8 +30,11 @@ const Footer = () => {
         mb={{ base: '16', md: 0 }}
       >
         <Text casing='uppercase'>{config.copyright}</Text>
-        <Text fontFamily='body' casing='uppercase' cursor='url(/img/maple-leaf.png), text'>
+        <Text fontFamily='body' casing='uppercase'>
           2024 LEONIDAS PAPADOPOULOS
+        </Text>
+        <Text fontFamily='body' casing='uppercase' cursor='url(/img/nyc.png), text'>
+          LONG ISLAND, NY
         </Text>
       </Stack>
       <Stack
