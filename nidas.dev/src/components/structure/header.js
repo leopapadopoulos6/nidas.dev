@@ -10,7 +10,7 @@ const Header = ({name}) => {
     return (
         <Flex>
             <Box p='4'>
-                <Text>{name}</Text>
+                <Text fontFamily='heading'>{name}</Text>
             </Box>
             <Spacer />
             <Box p='4'> 
