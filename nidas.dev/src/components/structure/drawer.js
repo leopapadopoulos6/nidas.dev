@@ -96,7 +96,7 @@ function NavDrawer() {
           </DrawerBody>
 
           <DrawerFooter>
-            <IconButton /> {/* Add your IconButton here */}
+            
             <Button variant='outline' mr={3} onClick={onClose}>
               Close
             </Button>
