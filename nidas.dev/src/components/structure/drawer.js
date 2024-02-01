@@ -26,7 +26,7 @@ function NavDrawer() {
 
   return (
     <>
-      <IconButton ref={btnRef} icon={<AddIcon />} size='sm' onClick={onOpen}>
+      <IconButton ref={btnRef} icon={<AddIcon />} size='sm' onClick={onOpen} onTouchStart={onOpen}>
         Nav
       </IconButton>
 
