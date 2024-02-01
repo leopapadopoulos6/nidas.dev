@@ -1,5 +1,5 @@
 import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
-import { ColorModeSwitcher } from '../../themes/ColorModeSwitcher';
+import { ColorModeSwitcher } from './ColorModeSwitcher';
 import config from '../../data/text/config';
 import NavDrawer from './drawer';
 
