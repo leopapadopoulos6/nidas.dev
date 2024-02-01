@@ -1,8 +1,7 @@
-import { Box, Flex, Spacer, Text, IconButton } from '@chakra-ui/react';
-import { AddIcon } from '@chakra-ui/icons';
+import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
 import { ColorModeSwitcher } from '../../themes/ColorModeSwitcher';
 import config from '../../data/text/config';
-
+import NavDrawer from './drawer';
 
 
 const Header = ({name}) => {
@@ -17,7 +16,7 @@ const Header = ({name}) => {
                 <ColorModeSwitcher />
             </Box>
             <Box p='4'>
-                <IconButton size='sm' icon={<AddIcon />} />
+                <NavDrawer />
             </Box >
         </Flex>
     );
