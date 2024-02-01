@@ -1,6 +1,6 @@
 const config = {
     name: 'LEONIDAS',
-    construction: '...........who goes there..?',
+    construction: '...........who goes there...........?',
     email: 'leo@nidas.dev',
     email_link: 'mailto:leo@nidas.dev',
     github: 'https://github.com/leopapadopoulos6',
