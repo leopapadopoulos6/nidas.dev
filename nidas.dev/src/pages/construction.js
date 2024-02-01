@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Text, Code, Grid, VStack} from '@chakra-ui/react';
+import {Box, Text, Code, Grid, VStack, Spacer} from '@chakra-ui/react';
 import config from '../data/text/config';
 import { Logo } from '../themes/Logo';
 
@@ -11,9 +11,11 @@ const Construction = (props) => {
         <Grid minH="100vh" p={3}>
             <VStack spacing={8}>
                 <Logo h="40vmin" pointerEvents="none" />
+                <Spacer />
                 <Text>
-                    <Code colorScheme='red' fontSize="xl">{props}</Code>
+                    <Code fontFamily="heading" colorScheme='red' fontSize="lg">{props}</Code>
                 </Text>
+                <Spacer />
             </VStack>
         </Grid>
     </Box>
