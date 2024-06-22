@@ -7,11 +7,12 @@ const Layout = ({ children, header, footer, ...props }) => (
     React.createElement(Flex, {
       minH: '100vh',
       direction: 'column',
-      borderColor: 'black',
       borderTop: { base: '1px solid', sm: 'none' },
       borderBottom: { base: '1px solid', sm: 'none' },
       borderLeft: '1px solid',
+      borderLeftColor: 'yellow',
       borderRight: '1px solid',
+      borderRightColor: 'yellow'
       
 
     },

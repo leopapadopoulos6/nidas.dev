@@ -10,7 +10,7 @@ import Fonts from '../themes/fonts';
 function App() {
   return (
     <ChakraProvider theme={Theme}>
-      <Box textAlign="center" fontSize="xl">
+      <Box bg="bg" textAlign="center" fontSize="xl">
       <Layout header={Header} footer={Footer} children={Construction}>
         <Fonts />
         <Construction />
