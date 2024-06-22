@@ -23,7 +23,7 @@ const Footer = () => {
       px={{ base: '4', md: '8' }}
       borderTop='1px solid'
       borderTopColor='aqua'
-      color='aqua'
+      color='yellow'
     >
       <Stack
         direction={{ base: 'column', lg: 'row' }}
@@ -62,6 +62,7 @@ const Footer = () => {
           variant='icon'
           size='icon'
           onClick={() => window.scrollTo(0, 0)}
+          color='red'
         />
       </Stack>
     </Flex>

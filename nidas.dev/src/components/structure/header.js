@@ -12,7 +12,7 @@ const Header = ({name}) => {
             borderBottomColor='aqua'
         >
             <Box p='4'>
-                <Text color='aqua' fontFamily='heading'>{name}</Text>
+                <Text color='yellow' fontFamily='heading'>{name}</Text>
             </Box>
             <Spacer />
             <Box p='4'>
