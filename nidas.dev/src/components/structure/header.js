@@ -9,7 +9,7 @@ const Header = ({name}) => {
         <Flex
             mt='4'
             borderBottom='1px solid'
-            borderBottomColor='yellow'
+            borderBottomColor='aqua'
         >
             <Box p='4'>
                 <Text color='aqua' fontFamily='heading'>{name}</Text>
