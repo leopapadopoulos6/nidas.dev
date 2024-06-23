@@ -94,13 +94,7 @@ function NavDrawer() {
             </Box>
           </VStack>
           </DrawerBody>
-{/* 
-          <DrawerFooter>
-            <Button variant='outline' mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </DrawerFooter> */}
-          
+                    
         </DrawerContent>
       </Drawer>
     </>
