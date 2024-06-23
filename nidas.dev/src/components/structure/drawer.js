@@ -39,7 +39,7 @@ function NavDrawer() {
         <DrawerOverlay />
         <DrawerContent bgColor='fg' color='bg'>
           <DrawerCloseButton />
-          <DrawerHeader color='aqua' fontFamily='heading' >UNDER CONSTRUCTION</DrawerHeader>
+          <DrawerHeader color='bg' fontFamily='heading' >UNDER CONSTRUCTION</DrawerHeader>
 
           <DrawerBody>
           <VStack>
@@ -94,14 +94,13 @@ function NavDrawer() {
             </Box>
           </VStack>
           </DrawerBody>
-
+{/* 
           <DrawerFooter>
-            
             <Button variant='outline' mr={3} onClick={onClose}>
               Close
             </Button>
-            {/* Add your additional buttons or actions here */}
-          </DrawerFooter>
+          </DrawerFooter> */}
+          
         </DrawerContent>
       </Drawer>
     </>

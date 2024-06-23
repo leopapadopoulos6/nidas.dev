@@ -22,7 +22,7 @@ const Footer = () => {
       pb='12'
       px={{ base: '4', md: '8' }}
       borderTop='1px solid'
-      borderTopColor='aqua'
+      borderTopColor='blue'
       color='yellow'
     >
       <Stack

@@ -10,9 +10,9 @@ const Layout = ({ children, header, footer, ...props }) => (
       borderTop: { base: '1px solid', sm: 'none' },
       borderBottom: { base: '1px solid', sm: 'none' },
       borderLeft: '1px solid',
-      borderLeftColor: 'aqua',
+      borderLeftColor: 'blue',
       borderRight: '1px solid',
-      borderRightColor: 'aqua'
+      borderRightColor: 'blue'
       
 
     },
