@@ -14,7 +14,7 @@ const Construction = (props) => {
                 <Logo h="40vmin" pointerEvents="none" />
                 <Spacer />
                 <Text>
-                    <Code fontFamily="heading" colorScheme='red' fontSize="lg">{props}</Code>
+                    <Code fontFamily="heading" bgColor='red' fontSize="lg">{props}</Code>
                 </Text>
                 <Spacer />
             </VStack>

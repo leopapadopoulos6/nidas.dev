@@ -26,7 +26,7 @@ function NavDrawer() {
 
   return (
     <>
-      <IconButton ref={btnRef} icon={<AddIcon />} size='sm' onClick={onOpen} onTouchStart={onOpen}>
+      <IconButton colorScheme='bg' color='yellow' ref={btnRef} icon={<AddIcon />} size='sm' onClick={onOpen} onTouchStart={onOpen}>
         Nav
       </IconButton>
 
@@ -37,9 +37,9 @@ function NavDrawer() {
         finalFocusRef={btnRef}
       >
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent bgColor='fg' color='bg'>
           <DrawerCloseButton />
-          <DrawerHeader fontFamily='heading' >UNDER CONSTRUCTION</DrawerHeader>
+          <DrawerHeader color='bg' fontFamily='heading' >UNDER CONSTRUCTION</DrawerHeader>
 
           <DrawerBody>
           <VStack>
@@ -94,14 +94,13 @@ function NavDrawer() {
             </Box>
           </VStack>
           </DrawerBody>
-
+{/* 
           <DrawerFooter>
-            
             <Button variant='outline' mr={3} onClick={onClose}>
               Close
             </Button>
-            {/* Add your additional buttons or actions here */}
-          </DrawerFooter>
+          </DrawerFooter> */}
+          
         </DrawerContent>
       </Drawer>
     </>
