@@ -4,9 +4,333 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Server Room · Concept Board</title>
+    <meta name="description" content="Concept board for nidas.dev v2: three visual directions for a 3D server-room portfolio, research shortlist, and a recommendation." />
     <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0b0c10" />
   </head>
-  <body style="background:#07080c;color:#d9dde8;font:15px/1.6 ui-monospace,monospace;padding:24px">
-    <p>Concept board in progress: research running.</p>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <span class="id">nidas.dev v2 / concepts</span>
+        <nav aria-label="Sections">
+          <a href="#room">Room</a>
+          <a href="#a">A · Night Shift</a>
+          <a href="#b">B · Blacklight</a>
+          <a href="#c">C · Phosphor</a>
+          <a href="#research">Research</a>
+          <a href="#rec">Pick</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap intro">
+        <p class="eyebrow">Phase 2 · concept board</p>
+        <h1>Server Room: three ways to light it.</h1>
+        <p class="lede">
+          One room, three directions. The layout and interactions are shared: racks are sections, patch-panel ports are links, the console on the crash cart dives into a 2D résumé, and the locked terminal guards <code>/apps</code>. What changes is the palette, type, light, materials, and motion. Every still below is a live render of the same throwaway Three.js prototype, built from code with no models or image textures.
+        </p>
+        <p class="status"><i aria-hidden="true"></i>Waiting for Leo's pick. The shell (Phase 3) starts only after approval.</p>
+      </div>
+
+      <section class="block" id="room">
+        <div class="wrap">
+          <h2>The room (shared by all three)</h2>
+          <p class="lede">A cut-away diorama seen from a fixed three-quarter angle. Nothing needs WASD or scrolling: every interactive object is visible from the home view and one click away.</p>
+          <div class="plan">
+            <svg viewBox="0 0 700 520" role="img" aria-labelledby="planT">
+              <title id="planT">Top-down plan of the server room with the interactive objects labelled</title>
+              <defs>
+                <pattern id="tiles" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#23262f" /></pattern>
+              </defs>
+              <rect x="20" y="20" width="680" height="480" fill="url(#tiles)" />
+              <path d="M20 20H700M20 20V500" stroke="#9aa1ad" stroke-width="8" />
+              <rect x="350" y="16" width="160" height="8" fill="#ff2e97" />
+              <text x="430" y="44" fill="#ff2e97" font-family="JetBrains Mono, monospace" font-size="12" text-anchor="middle">window · neon spill</text>
+              <g font-family="JetBrains Mono, monospace" font-size="11" text-anchor="middle">
+                <g fill="#0e2733" stroke="#2ef2ff">
+                  <rect x="85" y="40" width="60" height="100" /><rect x="155" y="40" width="60" height="100" /><rect x="225" y="40" width="60" height="100" /><rect x="295" y="40" width="60" height="100" />
+                </g>
+                <g fill="#2ef2ff"><text x="115" y="94">01</text><text x="185" y="94">02</text><text x="255" y="94">03</text><text x="325" y="94">04</text></g>
+                <text x="220" y="160" fill="#e7e9ee">racks = sections</text>
+                <rect x="532" y="22" width="76" height="80" fill="#1a1f2a" stroke="#9aa1ad" />
+                <text x="570" y="66" fill="#9aa1ad">CRAC</text>
+                <rect x="22" y="195" width="14" height="60" fill="#ffb547" />
+                <text x="98" y="230" fill="#ffb547">patch panel</text>
+                <text x="98" y="246" fill="#9aa1ad">ports = links</text>
+                <rect x="22" y="320" width="10" height="28" fill="#ff3b4e" />
+                <rect x="22" y="360" width="8" height="100" fill="#3a1218" stroke="#ff3b4e" />
+                <text x="102" y="338" fill="#ff3b4e">locked terminal</text>
+                <text x="102" y="354" fill="#9aa1ad">/apps · denied</text>
+                <text x="82" y="414" fill="#9aa1ad">door</text>
+                <rect x="160" y="320" width="60" height="60" fill="#05060b" stroke="#7c5cff" stroke-dasharray="4 3" />
+                <text x="190" y="398" fill="#7c5cff">open tile</text>
+                <g transform="translate(455 345) rotate(-31)"><rect x="-36" y="-28" width="72" height="56" fill="#1a1030" stroke="#8dfcff" /><rect x="-24" y="-30" width="48" height="10" fill="#8dfcff" /></g>
+                <text x="455" y="405" fill="#8dfcff">console cart</text>
+                <text x="455" y="421" fill="#9aa1ad">about / résumé → dive</text>
+                <path d="M640 470 L590 425" stroke="#e7e9ee" stroke-width="2" marker-end="url(#arr)" />
+                <text x="636" y="490" fill="#e7e9ee">camera</text>
+              </g>
+              <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e7e9ee" /></marker></defs>
+            </svg>
+            <ul class="map">
+              <li><b>4 racks → sections</b><span>About, Work, Projects, Skills. Hover lights the rack's LEDs and crown strip; click dollies the camera to it and slides in a detail panel.</span></li>
+              <li><b>Patch panel → links</b><span>GitHub, LinkedIn, mail, résumé PDF (and spares). Click a port: its cable flashes and a packet runs up into the tray. Ports are ~10 px targets from the home view, so in the shell the first click brings the panel close and the second picks a port (each with an HTML label).</span></li>
+              <li><b>Console CRT → about / résumé</b><span>Click to dive: the camera pushes through the glass into a full-screen 2D interface (boot text, terminal, windows) where everything is easy to read.</span></li>
+              <li><b>Locked terminal → /apps</b><span>Placeholder for future private dashboards. Shows ACCESS DENIED, no auth yet.</span></li>
+              <li><b>Everything else is atmosphere</b><span>CRAC unit, cable tray, an open floor tile, a clock, a fire extinguisher. They give scale and make the room feel used.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== A ===================== -->
+      <section class="dir" id="a" style="--a:#2ef2ff;--b:#ff2e97;--ink:#04060b">
+        <div class="wrap">
+          <header>
+            <span class="letter">Direction A</span>
+            <h2>Night Shift</h2>
+            <p class="tag">Neon-noir NOC at 3 a.m. Rain-blue dark, a wet floor that mirrors the LEDs, magenta street light cut into stripes by the blinds. Closest to "neon light spilling in."</p>
+          </header>
+          <div class="hero">
+            <img src="/concepts/img/noir-hero-2400.webp" srcset="/concepts/img/noir-hero-1200.webp 1200w, /concepts/img/noir-hero-2400.webp 2400w" sizes="(min-width: 1240px) 1176px, 100vw" width="2400" height="1500" alt="Direction A render: dark server room diorama, cyan rack LEDs, magenta window light across a reflective tiled floor" />
+            <a class="open" href="/concepts/proto/?d=noir">Open motion sketch →</a>
+          </div>
+          <div class="shots">
+            <figure><img src="/concepts/img/noir-console-1200.webp" width="1200" height="750" loading="lazy" alt="Close-up of the console CRT on its crash cart showing boot text" /><figcaption>Console close-up: the frame before the dive</figcaption></figure>
+            <figure class="phone"><img src="/concepts/img/noir-mobile-780.webp" width="780" height="1688" loading="lazy" alt="Phone-width render of the room" /><figcaption>390 px framing</figcaption></figure>
+          </div>
+          <div class="grid2">
+            <div>
+              <h3>Palette</h3>
+              <div class="swatches">
+                <div class="sw"><div style="background:#04060b"></div><p>#04060B<span>void / fog</span></p></div>
+                <div class="sw"><div style="background:#151c2b"></div><p>#151C2B<span>rack steel</span></p></div>
+                <div class="sw"><div style="background:#2a3550"></div><p>#2A3550<span>trim</span></p></div>
+                <div class="sw"><div style="background:#2ef2ff"></div><p>#2EF2FF<span>link / primary</span></p></div>
+                <div class="sw"><div style="background:#ffb547"></div><p>#FFB547<span>activity</span></p></div>
+                <div class="sw"><div style="background:#ff2e97"></div><p>#FF2E97<span>neon spill</span></p></div>
+                <div class="sw"><div style="background:#ff3b4e"></div><p>#FF3B4E<span>alarm / denied</span></p></div>
+                <div class="sw"><div style="background:#e6f0ff"></div><p>#E6F0FF<span>text</span></p></div>
+              </div>
+              <h3 style="margin-top:28px">Type</h3>
+              <div class="type">
+                <p class="d" style="font-family:'Tektur',sans-serif;font-weight:800">LEO PAPADOPOULOS</p>
+                <p class="d2" style="font-family:'Tektur',sans-serif;font-weight:600">Rack 03 / Projects</p>
+                <p class="m" style="font-family:'JetBrains Mono',monospace">$ show interfaces status
+Gi1/0/24  connected  trunk  a-full a-1000
+leo@nidas:~$ cat about.txt</p>
+                <p class="meta">Tektur (display) + JetBrains Mono · both SIL OFL 1.1, self-hosted</p>
+              </div>
+              <h3 style="margin-top:28px">After the dive: 2D interface</h3>
+              <div class="mock noir">
+                <div class="bar"><span>leo@nidas: ~/about</span><span>[ESC] back to room</span></div>
+                <div class="body">
+                  <p class="who">LEO PAPADOPOULOS</p>
+                  <p class="role">Network Engineer · Promenet, Inc. · NYC</p>
+                  <ul class="nav"><li>about</li><li>experience</li><li>education</li><li>skills</li><li>projects</li><li>links</li></ul>
+                  <pre>$ uptime
+2024–present  client site engineering, VLANs, HA/failover
+$ next
+CCNA <em>in progress</em> → cybersecurity</pre>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3>Motion notes</h3>
+              <ul class="notes">
+                <li><b>Camera.</b> Fixed three-quarter rig with pointer parallax (±0.35 m) and a slow idle sway. Click a rack: a 1.2 s ease-in-out dolly to a front-on framing, then the panel slides in. Esc or Back reverses it. No scroll-jacking and no free orbit, so it's hard to get lost.</li>
+                <li><b>LEDs.</b> About 600 LEDs in one instanced mesh, blinking from per-LED rate/phase/duty in the shader, so no per-frame JavaScript. Hovering a rack doubles its LEDs and lights its crown strip.</li>
+                <li><b>Cables.</b> Every cable carries slow data pulses (a UV-offset band in the shader). Click a patch port: its LED strobes three times and its cable surges, so the link visibly "comes up."</li>
+                <li><b>Neon.</b> The street sign flickers once or twice a minute; the ceiling tube stutters. Light shafts and the striped floor pool are cheap additive planes, not volumetrics.</li>
+                <li><b>The dive.</b> 1.3 s push to the CRT, then 0.7 s through it: FOV narrows 34° → 20°, barrel distortion and chromatic aberration ramp up, scanlines rise, and the screen fills the frame before crossfading to the 2D UI, whose boot text types in. Exit plays it backwards.</li>
+                <li><b>Loader.</b> BIOS-style POST lines driven by real asset progress. The 2D content is already in the HTML underneath.</li>
+              </ul>
+              <div class="pros">
+                <div><h4 style="color:#7ee2a8">Strengths</h4><ul><li>Matches the brief most directly</li><li>Richest mood; shows lighting, reflection and post skills</li><li>Cyan/magenta reads clearly on dark</li></ul></div>
+                <div><h4 style="color:#ff9c8a">Risks</h4><ul><li>Cyan + magenta is a familiar cyberpunk pairing; detail has to carry it</li><li>Floor reflection costs a second render (needs a quality toggle)</li><li>Dark: in-scene labels must live in HTML</li></ul></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== B ===================== -->
+      <section class="dir" id="b" style="--a:#ff3ec8;--b:#b8ff3c;--ink:#08021a">
+        <div class="wrap">
+          <header>
+            <span class="letter">Direction B</span>
+            <h2>Blacklight Y2K</h2>
+            <p class="tag">After-hours under a UV tube. Smoked-acrylic racks, chrome bezels, a translucent teal CRT, fluorescent cables and floor tape that glow like a club. The most playful option and the most Y2K.</p>
+          </header>
+          <div class="hero">
+            <img src="/concepts/img/blacklight-hero-2400.webp" srcset="/concepts/img/blacklight-hero-1200.webp 1200w, /concepts/img/blacklight-hero-2400.webp 2400w" sizes="(min-width: 1240px) 1176px, 100vw" width="2400" height="1500" loading="lazy" alt="Direction B render: violet UV-lit server room with translucent purple racks, fluorescent cables and lime floor tape" />
+            <a class="open" href="/concepts/proto/?d=blacklight">Open motion sketch →</a>
+          </div>
+          <div class="shots">
+            <figure><img src="/concepts/img/blacklight-console-1200.webp" width="1200" height="750" loading="lazy" alt="Close-up of a translucent teal CRT with lime boot text" /><figcaption>Console close-up: translucent teal CRT</figcaption></figure>
+            <figure class="phone"><img src="/concepts/img/blacklight-mobile-780.webp" width="780" height="1688" loading="lazy" alt="Phone-width render of the blacklight room" /><figcaption>390 px framing</figcaption></figure>
+          </div>
+          <div class="grid2">
+            <div>
+              <h3>Palette</h3>
+              <div class="swatches">
+                <div class="sw"><div style="background:#08021a"></div><p>#08021A<span>void / fog</span></p></div>
+                <div class="sw"><div style="background:#2b1666"></div><p>#2B1666<span>acrylic</span></p></div>
+                <div class="sw"><div style="background:#d9dcf2"></div><p>#D9DCF2<span>chrome</span></p></div>
+                <div class="sw"><div style="background:#7b2cff"></div><p>#7B2CFF<span>UV light</span></p></div>
+                <div class="sw"><div style="background:#ff3ec8"></div><p>#FF3EC8<span>fluoro pink</span></p></div>
+                <div class="sw"><div style="background:#b8ff3c"></div><p>#B8FF3C<span>fluoro lime</span></p></div>
+                <div class="sw"><div style="background:#3cf7e6"></div><p>#3CF7E6<span>aqua / link</span></p></div>
+                <div class="sw"><div style="background:#ff8a1f"></div><p>#FF8A1F<span>denied</span></p></div>
+              </div>
+              <h3 style="margin-top:28px">Type</h3>
+              <div class="type">
+                <p class="d" style="font-family:'Unbounded',sans-serif;font-weight:700">Leo Papadopoulos</p>
+                <p class="d2" style="font-family:'Unbounded',sans-serif;font-weight:500">rack 03 · projects</p>
+                <p class="m" style="font-family:'Space Mono',monospace">$ show interfaces status
+Gi1/0/24  connected  trunk  a-full a-1000
+leo@nidas:~$ cat about.txt</p>
+                <p class="meta">Unbounded (display) + Space Mono · both SIL OFL 1.1, self-hosted</p>
+              </div>
+              <h3 style="margin-top:28px">After the dive: 2D interface</h3>
+              <div class="mock blacklight">
+                <div class="bar"><span>about.exe</span><i aria-hidden="true"></i></div>
+                <div class="body">
+                  <p class="who">Leo Papadopoulos</p>
+                  <p class="role">Network Engineer · Promenet, Inc. · NYC</p>
+                  <ul class="nav"><li>about</li><li>experience</li><li>education</li><li>skills</li><li>projects</li><li>links</li></ul>
+                  <pre>&gt; uptime: 2024–present
+&gt; next: CCNA <em>loading…</em> → cybersecurity</pre>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3>Motion notes</h3>
+              <ul class="notes">
+                <li><b>Camera.</b> Same rig as A, with springier easing (slight overshoot) on hover lifts and panel arrivals. Things bounce a little.</li>
+                <li><b>UV breathing.</b> The blacklight tube hums at about 0.5 Hz; fluorescent surfaces (cables, tape, LEDs) breathe with it, and hovering an object pushes it to full fluorescence.</li>
+                <li><b>Wayfinding.</b> Click a rack and the floor tape runs marching-ants from the cart to that rack before the camera moves. The room points the way.</li>
+                <li><b>Patch ports.</b> The cable flashes through all four fluoro colours, then settles on its own.</li>
+                <li><b>The dive.</b> The CRT glass bulges into a fisheye, then a chrome-barred window pops out of the screen with a scale overshoot. The 2D UI is a desktop of draggable, stackable windows.</li>
+                <li><b>Loader.</b> A chrome progress dialog with a candy-striped bar.</li>
+              </ul>
+              <div class="pros">
+                <div><h4 style="color:#7ee2a8">Strengths</h4><ul><li>Most memorable and least expected for a network engineer</li><li>Pairs naturally with a Y2K windowed 2D UI</li><li>Fluorescent palette pops on phones</li></ul></div>
+                <div><h4 style="color:#ff9c8a">Risks</h4><ul><li>Can read as "nightclub" more than "NOC"</li><li>Transparent racks need careful sorting; heavier on overdraw</li><li>Pink/purple contrast needs checking for colour-blind users</li></ul></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== C ===================== -->
+      <section class="dir" id="c" style="--a:#39ff7a;--b:#ff3b30;--ink:#010402">
+        <div class="wrap">
+          <header>
+            <span class="letter">Direction C</span>
+            <h2>Phosphor Vector</h2>
+            <p class="tag">The room as a green-screen wireframe: every edge drawn in phosphor, one red alarm, CRT glass (scanlines and barrel distortion) over everything. The whole site is already the terminal you dive into.</p>
+          </header>
+          <div class="hero">
+            <img src="/concepts/img/phosphor-hero-2400.webp" srcset="/concepts/img/phosphor-hero-1200.webp 1200w, /concepts/img/phosphor-hero-2400.webp 2400w" sizes="(min-width: 1240px) 1176px, 100vw" width="2400" height="1500" loading="lazy" alt="Direction C render: the server room drawn as glowing green wireframe edges with a red door sign" />
+            <a class="open" href="/concepts/proto/?d=phosphor">Open motion sketch →</a>
+          </div>
+          <div class="shots">
+            <figure><img src="/concepts/img/phosphor-console-1200.webp" width="1200" height="750" loading="lazy" alt="Close-up of the wireframe console with green boot text" /><figcaption>Console close-up: same font and colour as the 2D UI</figcaption></figure>
+            <figure class="phone"><img src="/concepts/img/phosphor-mobile-780.webp" width="780" height="1688" loading="lazy" alt="Phone-width render of the wireframe room" /><figcaption>390 px framing</figcaption></figure>
+          </div>
+          <div class="grid2">
+            <div>
+              <h3>Palette</h3>
+              <div class="swatches">
+                <div class="sw"><div style="background:#010402"></div><p>#010402<span>void</span></p></div>
+                <div class="sw"><div style="background:#03140a"></div><p>#03140A<span>fill</span></p></div>
+                <div class="sw"><div style="background:#0b3b1e"></div><p>#0B3B1E<span>grid</span></p></div>
+                <div class="sw"><div style="background:#1faf55"></div><p>#1FAF55<span>dim edge</span></p></div>
+                <div class="sw"><div style="background:#39ff7a"></div><p>#39FF7A<span>phosphor</span></p></div>
+                <div class="sw"><div style="background:#b6ffcc"></div><p>#B6FFCC<span>hot pixel</span></p></div>
+                <div class="sw"><div style="background:#c8ffd9"></div><p>#C8FFD9<span>text</span></p></div>
+                <div class="sw"><div style="background:#ff3b30"></div><p>#FF3B30<span>alarm</span></p></div>
+              </div>
+              <h3 style="margin-top:28px">Type</h3>
+              <div class="type" style="color:#39ff7a">
+                <p class="d" style="font-family:'Doto',monospace;font-weight:900;color:#39ff7a">LEO PAPADOPOULOS</p>
+                <p class="d2" style="font-family:'Doto',monospace;font-weight:700">RACK 03 / PROJECTS</p>
+                <p class="m" style="font-family:'IBM Plex Mono',monospace">$ show interfaces status
+Gi1/0/24  connected  trunk  a-full a-1000
+leo@nidas:~$ cat about.txt</p>
+                <p class="meta">Doto (display, dot-matrix) + IBM Plex Mono · both SIL OFL 1.1, self-hosted</p>
+              </div>
+              <h3 style="margin-top:28px">After the dive: 2D interface</h3>
+              <div class="mock phosphor">
+                <div class="bar"><span>TTY0 · leo@nidas</span><span>ESC=ROOM</span></div>
+                <div class="body">
+                  <p class="who">LEO PAPADOPOULOS</p>
+                  <p class="role">network engineer · promenet, inc. · nyc</p>
+                  <ul class="nav"><li>about</li><li>experience</li><li>education</li><li>skills</li><li>projects</li><li>links</li></ul>
+                  <pre>$ uptime
+2024-present  client site engineering
+$ next
+ccna <em>[pending]</em> -&gt; cybersecurity</pre>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3>Motion notes</h3>
+              <ul class="notes">
+                <li><b>Boot.</b> The room draws itself: edges trace in, back to front, over about 1.2 s (dash-offset on the line segments), then the LEDs come up rack by rack.</li>
+                <li><b>Camera.</b> Same rig as A. Hover puts targeting brackets around the object, HUD-style, instead of a glow.</li>
+                <li><b>Patch ports.</b> A bright "packet" dot runs the length of the clicked cable into the tray, one per click.</li>
+                <li><b>The dive.</b> No crossfade: the console's text is the same font and colour as the 2D UI, so the camera pushes in until the CRT text is page-sized and the DOM simply takes over. The seamless option.</li>
+                <li><b>Alarm.</b> The only non-green colour is red: the door beacon, the denied screen, and any error state.</li>
+                <li><b>Perf.</b> No lights, shadows or reflections. It's the cheapest to render and could run as full 3D even on mid-range phones.</li>
+              </ul>
+              <div class="pros">
+                <div><h4 style="color:#7ee2a8">Strengths</h4><ul><li>Most distinctive; reads "engineer" instantly</li><li>Seamless dive into the Matrix-style 2D UI</li><li>Fastest and lightest of the three</li></ul></div>
+                <div><h4 style="color:#ff9c8a">Risks</h4><ul><li>Monochrome is cold and can tire the eyes</li><li>Loses the "neon light spilling in" warmth from the brief</li><li>Wireframe can look unfinished if edge density isn't curated</li></ul></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== research ===================== -->
+      <section class="block" id="research">
+        <div class="wrap">
+          <h2>Research shortlist</h2>
+          <p class="lede" id="method"></p>
+          <div class="stats" id="stats"></div>
+          <div class="cards" id="cards"></div>
+          <p class="cap" style="margin-top:16px;border:1px solid var(--line);border-radius:8px">Screenshots are from headless Chromium with software WebGL (SwiftShader). <span class="badge">low-trust render</span> marks captures where WebGL ran too slowly or failed, so the image may not match what a GPU shows. Thumbnails belong to their owners and are here for internal review only; they go before anything merges.</p>
+        </div>
+      </section>
+
+      <!-- ===================== recommendation ===================== -->
+      <section class="block" id="rec">
+        <div class="wrap">
+          <div class="rec">
+            <span class="eyebrow">Recommendation</span>
+            <h2 style="margin-top:10px">Go with A, Night Shift, and borrow C's dive.</h2>
+            <p>A is the brief: a server room at night with neon spilling in. It also shows the widest range of skills in a single frame (lighting, reflections, instanced LEDs, shader-driven cables, post-processing), which matters because the site itself has to prove the ability. Your two favourites, Bruno Simon and Jesse Zhou, both win on rich, lit, toy-like scenes rather than on effects, and A is the closest of the three to that.</p>
+            <ol>
+              <li><b>Keep A's room</b> (palette, Tektur + JetBrains Mono, wet floor, window spill) as the 3D identity.</li>
+              <li><b>Make the console the doorway to C.</b> The CRT screen and the post-dive 2D UI use a phosphor sub-palette, so diving in feels like changing medium, not just zooming. The A/C seam happens inside the monitor.</li>
+              <li><b>Ship a quality ladder from day one:</b> no-reflection and no-bloom tiers for weaker GPUs, and the full 2D site for phones, reduced motion, no WebGL, and crawlers, as the brief requires.</li>
+              <li><b>Avoid the generic-cyberpunk trap</b> with specifics: real switch port LEDs, a patch panel numbered like a real one, believable cable runs, a CRAC unit. The network-engineer details are what make it yours.</li>
+            </ol>
+            <p>If you'd rather be memorable than on-brief, pick B. If you want the fastest, most coherent build, pick C.</p>
+            <div class="pick"><code>A</code><code>B</code><code>C</code><code>A + C's dive (recommended)</code><code>mix: tell me what to swap</code></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p>Prototype scenes: Three.js (MIT), all geometry, textures, and shaders generated in code. Fonts: Tektur, JetBrains Mono, Unbounded, Space Mono, Doto, IBM Plex Mono (SIL OFL 1.1, bundled via Fontsource). No third-party models or images in the scenes. See <code>CREDITS.md</code>.</p>
+      </div>
+    </footer>
+    <script type="module" src="./board.ts"></script>
   </body>
 </html>

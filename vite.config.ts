@@ -6,6 +6,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     target: 'es2022',
+    // the throwaway prototype bundles all of three.js; Phase 3 code-splits the real scene
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       input: {
         main: resolve(import.meta.dirname, 'index.html'),

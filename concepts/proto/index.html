@@ -3,10 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Server Room · Concept Board</title>
+    <title>Server Room prototype</title>
     <meta name="robots" content="noindex" />
   </head>
-  <body style="background:#07080c;color:#d9dde8;font:15px/1.6 ui-monospace,monospace;padding:24px">
-    <p>Concept board in progress: research running.</p>
+  <body>
+    <canvas id="gl"></canvas>
+    <header id="hud">
+      <a href="/concepts/" class="mark">nidas.dev</a>
+      <span class="name"></span>
+    </header>
+    <p id="hint">Motion sketch: hover and click a rack, a patch port, the locked terminal, or the console monitor. Esc goes back.</p>
+    <aside id="panel" hidden>
+      <h2></h2>
+      <p></p>
+      <button id="back" type="button">&larr; back</button>
+    </aside>
+    <section id="overlay" hidden>
+      <div class="win">
+        <div class="bar"><span>leo@nidas:~</span><button type="button" data-close>×</button></div>
+        <pre></pre>
+      </div>
+    </section>
+    <script type="module" src="./main.ts"></script>
   </body>
 </html>
