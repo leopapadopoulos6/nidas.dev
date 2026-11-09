@@ -9,7 +9,7 @@ import '@fontsource/ibm-plex-mono/600.css'
 import '@fontsource-variable/tektur/wdth.css'
 import '@fontsource-variable/martian-mono/wdth.css'
 import { directions, type Direction } from './directions'
-import { favorites, funnel, method, shortlist, type Reference } from './research'
+import { favorites, funnel, method, shortlist, takeaways, type Reference } from './research'
 import { firewall, nodes } from './proto/layout'
 import './board.css'
 
@@ -282,6 +282,16 @@ export default function ConceptBoard() {
               <RefCard key={r.slug} r={r} />
             ))}
           </div>
+
+          <h3 className="research__sub">What this changes about Packet</h3>
+          <ol className="takeaways">
+            {takeaways.map((t) => (
+              <li key={t.title}>
+                <b>{t.title}</b>
+                <span>{t.text}</span>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 

@@ -123,6 +123,12 @@
 .ref--big .ref__body h4 { font-size: 22px; }
 .ref--big .ref__line { font-size: 16px; }
 
+.takeaways { list-style: none; counter-reset: tk; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 40px; max-width: 1080px; }
+.takeaways li { counter-increment: tk; display: grid; align-content: start; grid-template-columns: 2.4em minmax(0, 1fr); column-gap: 8px; }
+.takeaways li::before { content: counter(tk, decimal-leading-zero); grid-row: span 2; font: 13px/1.6 var(--mono); color: var(--warn); }
+.takeaways b { font-size: 16px; }
+.takeaways span { color: #bfc4cd; font-size: 14.5px; }
+
 /* recommendation */
 .pick { padding-top: 96px; padding-bottom: 96px; border-top: 1px solid var(--rule); }
 .pick__cols { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; }
@@ -158,6 +164,7 @@
   .dir__grid { grid-template-columns: 1fr; gap: 32px; }
   .motion div { grid-template-columns: 1fr; gap: 2px; }
   .refs, .refs--fav { grid-template-columns: 1fr; }
+  .takeaways { grid-template-columns: 1fr; }
   .funnel { grid-template-columns: 1fr 1fr; }
   .funnel li { border-left: 0 !important; border-top: 1px solid var(--rule); }
   .funnel li:nth-child(even) { border-left: 1px solid var(--rule) !important; }
