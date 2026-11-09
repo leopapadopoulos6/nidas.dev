@@ -223,3 +223,5 @@
 .hud__badge { top: auto; bottom: 64px; left: 24px; font-size: 11px; opacity: 0.75; max-width: calc(100vw - 48px); }
 .proto:has(.hud__panel) .hud__badge { display: none; }
 @media (max-width: 720px) { .hud__badge { bottom: auto; top: 96px; left: 14px; right: 14px; } }
+/* the key legend and the autopilot chips share the bottom edge; drop the legend when they would collide */
+@media (max-width: 1180px) { .hud__keys { display: none; } }
