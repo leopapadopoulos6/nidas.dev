@@ -1,0 +1,13 @@
+# Builds from the repo root (the v1 CRA app in nidas.dev/ is no longer built on this branch).
+[build]
+  base = ""
+  command = "npm ci && npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
