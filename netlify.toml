@@ -1,0 +1,20 @@
+# nidas.dev v2 builds from the repository root (the v1 app in nidas.dev/ is legacy).
+[build]
+  base = "/"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.23.0"
+
+# Long-cache hashed build assets.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# SPA fallback for client-side routes (/concepts, /apps, ...).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
