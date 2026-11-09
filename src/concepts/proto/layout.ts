@@ -15,15 +15,15 @@ export interface HopNode {
 }
 
 export const nodes: HopNode[] = [
-  { id: 'gateway', hop: 0, kind: 'gateway', label: 'you', host: 'gw.visitor', latency: '0.412 ms', pos: [0, 40], ring: 5 },
-  { id: 'about', hop: 1, kind: 'router', label: 'about', host: 'core-rtr.about', latency: '3.118 ms', pos: [0, 0], ring: 8 },
-  { id: 'experience', hop: 2, kind: 'switch', label: 'experience', host: 'dist-sw.exp.nyc', latency: '7.904 ms', pos: [34, -26], ring: 8 },
-  { id: 'projects', hop: 3, kind: 'server', label: 'projects', host: 'srv-rack.projects', latency: '12.551 ms', pos: [-30, -48], ring: 8 },
-  { id: 'contact', hop: 4, kind: 'ap', label: 'contact', host: 'ap.contact.leo', latency: '15.207 ms', pos: [10, -84], ring: 7 },
+  { id: 'gateway', hop: 0, kind: 'gateway', label: 'you', host: 'gw.visitor', latency: '0.412 ms', pos: [0, 44], ring: 5 },
+  { id: 'about', hop: 1, kind: 'router', label: 'about', host: 'core-rtr.about', latency: '3.118 ms', pos: [6, 4], ring: 8 },
+  { id: 'experience', hop: 2, kind: 'switch', label: 'experience', host: 'dist-sw.exp.nyc', latency: '7.904 ms', pos: [36, -22], ring: 8 },
+  { id: 'projects', hop: 3, kind: 'server', label: 'projects', host: 'srv-rack.projects', latency: '12.551 ms', pos: [14, -70], ring: 8 },
+  { id: 'contact', hop: 4, kind: 'ap', label: 'contact', host: 'ap.contact.leo', latency: '15.207 ms', pos: [-28, -44], ring: 7 },
 ]
 
 export const firewall: HopNode = {
-  id: 'apps', hop: 5, kind: 'firewall', label: '/apps', host: 'fw.private', latency: '* * *', pos: [46, -70], ring: 0,
+  id: 'apps', hop: 5, kind: 'firewall', label: '/apps', host: 'fw.private', latency: '* * *', pos: [64, -50], ring: 0,
 }
 
 export const PACKET_Y = 1.25

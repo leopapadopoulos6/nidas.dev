@@ -83,7 +83,7 @@ export const directions: Direction[] = [
       display: {
         family: 'Archivo Expanded',
         css: "'Archivo Variable', sans-serif",
-        sample: 'HOP 02 / ABOUT',
+        sample: 'HOP 01 / ABOUT',
         note: 'Archivo at width 125, weight 700: wide engineering-signage caps for hop names and headings.',
         license: 'OFL-1.1',
       },
@@ -97,7 +97,7 @@ export const directions: Direction[] = [
     },
     motion: [
       { label: 'Packet handling', text: 'Hovercraft with weight: quick throttle response, gentle drift on turns, auto-centers on links. Feels like riding a rail without being locked to one.' },
-      { label: 'Camera follow', text: 'Low chase cam (about 9 m back, 4.5 m up), springs toward a look-ahead point. Slight FOV widening with speed; no roll.' },
+      { label: 'Camera follow', text: 'Low chase cam (about 14 m back, 5 m up), springs toward a look-ahead point. Slight FOV widening with speed; no roll.' },
       { label: 'Trail', text: 'Thin tapered light ribbon, white at the head and cyan in the tail. Links under the packet brighten as it passes, as if the fiber were lit.' },
       { label: 'Arrival', text: 'The packet enters the node ring and the ring flashes amber. The camera eases into a 3/4 view, then the panel slides in from the right with a hairline wipe. About 600 ms in total.' },
       { label: 'HUD', text: 'Live traceroute in the top left (hop, host, latency), with TTL and hop count in the top right. Hairline rules and no boxes. Text stays crisp and calm.' },
@@ -156,7 +156,7 @@ export const directions: Direction[] = [
       display: {
         family: 'VT323',
         css: "'VT323', monospace",
-        sample: '> HOP 02 ABOUT_',
+        sample: '> HOP 01 ABOUT_',
         note: 'A bitmap-terminal face at large sizes for headings and hop names. Used sparingly: it is display only.',
         license: 'OFL-1.1',
       },
@@ -170,7 +170,7 @@ export const directions: Direction[] = [
     },
     motion: [
       { label: 'Packet handling', text: 'Snappy and digital: near-instant acceleration and tight turns that snap slightly toward 45° headings. It feels like a cursor with momentum.' },
-      { label: 'Camera follow', text: 'Higher and steeper (about 60°), close to a top-down radar view. Smooth damping with no FOV changes, so the vector lines stay stable.' },
+      { label: 'Camera follow', text: 'Higher and steeper (about 13 m back, 12 m up), halfway to a top-down radar view. Smooth damping with no FOV changes, so the vector lines stay stable.' },
       { label: 'Trail', text: 'Phosphor persistence: the beam leaves a long afterglow that decays over about 1.5 s, like a scope trace.' },
       { label: 'Arrival', text: 'Screen tear plus a brief scanline roll, then the panel types itself out character by character with a block cursor. The full text is selectable once done.' },
       { label: 'HUD', text: 'A literal terminal: `$ traceroute nidas.dev` prints hop lines as you travel. Inverse-video highlight on the current hop.' },
@@ -229,7 +229,7 @@ export const directions: Direction[] = [
       display: {
         family: 'Tektur',
         css: "'Tektur Variable', sans-serif",
-        sample: 'HOP 02 // ABOUT',
+        sample: 'HOP 01 // ABOUT',
         note: 'Angular, chamfered letterforms that echo cut-corner HUD panels. A variable width axis lets signage go wide.',
         license: 'OFL-1.1',
       },
@@ -243,7 +243,7 @@ export const directions: Direction[] = [
     },
     motion: [
       { label: 'Packet handling', text: 'Arcade: boost on hold, drift with a sideways slide and sparks, a little camera shake on hard turns.' },
-      { label: 'Camera follow', text: 'Dynamic chase with an FOV kick on boost and a slight roll into turns. Swoops on arrival.' },
+      { label: 'Camera follow', text: 'Low dynamic chase (about 12 m back, 4 m up, wide 54° FOV) with an FOV kick on boost and a slight roll into turns. Swoops on arrival.' },
       { label: 'Trail', text: 'Thick magenta-to-cyan ribbon that reflects in the wet floor. Short and punchy.' },
       { label: 'Arrival', text: 'The node signage flickers on in sequence, then the panel slices in with a glitch offset in the hop color.' },
       { label: 'HUD', text: 'Chamfered panels with corner brackets. Each hop is color-coded, with segmented TTL and latency bars.' },

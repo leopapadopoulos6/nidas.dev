@@ -14,16 +14,50 @@ import { firewall, nodes } from './layout'
 import World from './World'
 import './hud.css'
 
-const ABOUT = {
-  title: 'About',
-  lead: 'Network engineer in New York. I design, cable, and keep alive the networks small companies run on.',
-  body: 'Client site engineering at Promenet: VLANs and trunking, HA/failover, firewall migrations, wireless surveys, and structured cabling. Working toward CCNA and moving toward security.',
-  facts: [
-    ['role', 'Network Engineer, Promenet, Inc.'],
-    ['based', 'NYC'],
-    ['since', '2024'],
-    ['next', 'CCNA → security'],
-  ],
+// Placeholder panel copy for the prototype (seeded from Leo's notes; TODO items stay TODO).
+const PANELS: Record<string, { title: string; lead: string; body: string; facts: [string, string][] }> = {
+  about: {
+    title: 'About',
+    lead: 'Network engineer in New York. I design, cable, and keep alive the networks small companies run on.',
+    body: 'Client site engineering at Promenet: VLANs and trunking, HA/failover, firewall migrations, wireless surveys, and structured cabling. Working toward CCNA and moving toward security.',
+    facts: [
+      ['role', 'Network Engineer, Promenet, Inc.'],
+      ['based', 'NYC'],
+      ['since', '2024'],
+      ['next', 'CCNA → security'],
+    ],
+  },
+  experience: {
+    title: 'Experience',
+    lead: 'Network Engineer at Promenet, Inc. (NYC), 2024 to present.',
+    body: 'Client site engineering across VLANs, trunking, HA/failover, firewall migrations, wireless surveys and structured cabling, plus SaaS administration and client documentation.',
+    facts: [
+      ['net', 'Cisco ASA · Catalyst · Nexus · Meraki'],
+      ['wifi', 'Aruba · Ruckus/Brocade'],
+      ['saas', 'Okta · Entra ID/Intune · M365'],
+      ['prior', 'Systems Administrator (TODO)'],
+    ],
+  },
+  projects: {
+    title: 'Projects',
+    lead: 'A short list on purpose. The site itself is the main exhibit.',
+    body: 'Descriptions and links are TODO until Leo fills them in.',
+    facts: [
+      ['01', 'ProfessorPilot (TODO)'],
+      ['02', 'TrackMyDiet (TODO)'],
+      ['03', 'nidas.dev v2: this world'],
+    ],
+  },
+  contact: {
+    title: 'Contact',
+    lead: 'The last hop. Packets that reach this far get a reply.',
+    body: 'Email is the fastest route. LinkedIn is TODO.',
+    facts: [
+      ['email', 'leo@nidas.dev'],
+      ['github', 'github.com/leopapadopoulos6'],
+      ['linkedin', 'TODO'],
+    ],
+  },
 }
 
 export default function Prototype() {
@@ -32,10 +66,25 @@ export default function Prototype() {
   const dir = directionById(direction) ?? directions[0]
   const fixedU = sp.has('u') ? Number(sp.get('u')) : undefined
   const fixedT = sp.has('t') ? Number(sp.get('t')) : undefined
-  const panelNode = sp.get('panel') ?? undefined
+  const stillPanel = sp.get('panel') ?? undefined
   const showHud = sp.get('hud') !== '0'
   const hi = sp.get('hq') === '1'
+  const isStill = fixedU !== undefined
   const [hop, setHop] = useState(-1)
+  const [target, setTarget] = useState<string | undefined>(undefined)
+  const [open, setOpen] = useState<string | undefined>(undefined)
+  const panelNode = isStill ? stillPanel : open
+  const fly = (id: string) => {
+    setOpen(undefined)
+    setTarget(id)
+  }
+  const close = () => {
+    setOpen(undefined)
+    setTarget(undefined)
+  }
+  const panel = panelNode ? PANELS[panelNode] : undefined
+  const panelHop = nodes.find((n) => n.id === panelNode)
+  const nextNode = panelHop ? nodes[panelHop.hop + 1] : undefined
   const shownHop = panelNode ? (nodes.find((n) => n.id === panelNode)?.hop ?? hop) : sp.has('hop') ? Number(sp.get('hop')) : hop
   const ttl = 64 - Math.max(0, shownHop)
   const nextHop = shownHop < 0 ? 1 : Math.min(shownHop + 1, nodes.length - 1)
@@ -50,7 +99,18 @@ export default function Prototype() {
         camera={{ fov: dir.theme.camera.fov, near: 0.1, far: 400, position: [0, 6, 50] }}
       >
         <Suspense fallback={null}>
-          <World key={dir.id} theme={dir.theme} directionId={dir.id} fixedU={fixedU} fixedT={fixedT} panelNode={panelNode} onHop={setHop} hiQuality={hi} />
+          <World
+            key={dir.id}
+            theme={dir.theme}
+            directionId={dir.id}
+            fixedU={fixedU}
+            fixedT={fixedT}
+            panelNode={panelNode}
+            onHop={setHop}
+            hiQuality={hi}
+            autopilotTo={target}
+            onArrive={setOpen}
+          />
         </Suspense>
       </Canvas>
 
@@ -87,7 +147,7 @@ export default function Prototype() {
           <nav className="hud__route" aria-label="autopilot">
             <span className="hud__route-label">autopilot</span>
             {nodes.slice(1).map((n) => (
-              <button key={n.id} type="button" className={n.hop === shownHop ? 'is-current' : ''}>
+              <button key={n.id} type="button" className={n.hop === shownHop ? 'is-current' : ''} onClick={() => fly(n.id)} aria-label={`Autopilot to hop ${n.hop}, ${n.label}`}>
                 <i>{String(n.hop).padStart(2, '0')}</i>
                 {n.label}
               </button>
@@ -105,16 +165,18 @@ export default function Prototype() {
             <div className="hud__stick-knob" />
           </div>
 
-          {panelNode === 'about' && (
-            <article className="hud__panel" aria-label="About">
+          {panel && panelHop && (
+            <article className="hud__panel" aria-label={panel.title}>
               <header>
-                <span className="hud__panel-hop">HOP 01 · core-rtr.about · {nodes[1].latency}</span>
-                <h1>{ABOUT.title}</h1>
+                <span className="hud__panel-hop">
+                  HOP {String(panelHop.hop).padStart(2, '0')} · {panelHop.host} · {panelHop.latency}
+                </span>
+                <h1>{panel.title}</h1>
               </header>
-              <p className="hud__panel-lead">{ABOUT.lead}</p>
-              <p>{ABOUT.body}</p>
+              <p className="hud__panel-lead">{panel.lead}</p>
+              <p>{panel.body}</p>
               <dl>
-                {ABOUT.facts.map(([k, v]) => (
+                {panel.facts.map(([k, v]) => (
                   <div key={k}>
                     <dt>{k}</dt>
                     <dd>{v}</dd>
@@ -122,10 +184,26 @@ export default function Prototype() {
                 ))}
               </dl>
               <footer>
-                <button type="button">next hop: experience →</button>
-                <button type="button" className="ghost">close</button>
+                {nextNode ? (
+                  <button type="button" onClick={() => fly(nextNode.id)}>
+                    next hop: {nextNode.label} →
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => fly('about')}>
+                    back to hop 1 →
+                  </button>
+                )}
+                <button type="button" className="ghost" onClick={close}>
+                  close
+                </button>
               </footer>
             </article>
+          )}
+
+          {!isStill && (
+            <p className="hud__badge">
+              prototype · auto-tour runs on its own · click a hop to fly there · WASD driving arrives in phase 3
+            </p>
           )}
         </div>
       )}

@@ -18,6 +18,8 @@ export interface WorldProps {
   panelNode?: string // frame this node for the arrival shot
   onHop?: (hop: number) => void
   hiQuality?: boolean
+  autopilotTo?: string // live mode: fly the packet to this node, then call onArrive
+  onArrive?: (id: string) => void
 }
 
 function useFogUniforms<T extends Record<string, THREE.IUniform>>(u: T) {
@@ -595,9 +597,32 @@ function Effects({ theme, hiQuality }: { theme: SceneTheme; hiQuality?: boolean 
   )
 }
 
-export default function World({ theme, directionId, fixedU, fixedT, panelNode, onHop, hiQuality }: WorldProps) {
+export default function World({ theme, directionId, fixedU, fixedT, panelNode, onHop, hiQuality, autopilotTo, onArrive }: WorldProps) {
   const curve = useMemo(() => buildRoute(), [])
   const len = useMemo(() => curve.getLength(), [curve])
+  // route position (0..1) of each node: the point of the loop closest to the node center
+  const nodeU = useMemo(() => {
+    const out: Record<string, number> = {}
+    const p = new THREE.Vector3()
+    for (const n of nodes) {
+      let best = 0
+      let bestD = Infinity
+      for (let i = 0; i < 1000; i++) {
+        curve.getPointAt(i / 1000, p)
+        const dd = Math.hypot(p.x - n.pos[0], p.z - n.pos[1])
+        if (dd < bestD) {
+          bestD = dd
+          best = i / 1000
+        }
+      }
+      out[n.id] = best
+    }
+    return out
+  }, [curve])
+  const arrivedRef = useRef<string | undefined>(undefined)
+  const blend = useRef(0) // 0 = chase cam, 1 = arrival framing
+  const camLook = useRef(new THREE.Vector3(0, 1, 0))
+  const lastPanel = useRef<HopNode | undefined>(undefined)
   const { camera, scene } = useThree()
   const time = useRef(fixedT ?? 0)
   const uRef = useRef(fixedU ?? 0.02)
@@ -615,18 +640,58 @@ export default function World({ theme, directionId, fixedU, fixedT, panelNode, o
   useFrame((state, dt) => {
     const d = Math.min(dt, 0.05)
     time.current = fixedT ?? state.clock.elapsedTime
-    if (fixedU === undefined) uRef.current = (uRef.current + (d * speed) / len) % 1
+    if (fixedU === undefined) {
+      if (autopilotTo && arrivedRef.current !== autopilotTo) {
+        // autopilot: run forward along the loop to the target node, easing in and out
+        const target = nodeU[autopilotTo]
+        const remaining = (((target - uRef.current) % 1) + 1) % 1
+        const remainingM = remaining * len
+        const v = Math.min(42, 8 + remainingM * 1.6)
+        const step = (d * v) / len
+        if (remaining <= step || remainingM < 0.05) {
+          uRef.current = target
+          arrivedRef.current = autopilotTo
+          onArrive?.(autopilotTo)
+        } else uRef.current = (uRef.current + step) % 1
+      } else if (!autopilotTo && !panel) {
+        arrivedRef.current = undefined
+        uRef.current = (uRef.current + (d * speed) / len) % 1
+      }
+    }
     const u = uRef.current
     curve.getPointAt(u, packetPos.current)
     const persp = camera as THREE.PerspectiveCamera
-    if (panel) {
+    const live = fixedU === undefined
+    if (panel) lastPanel.current = panel
+    blend.current = panel ? (live ? Math.min(1, blend.current + d * 1.6) : 1) : live ? Math.max(0, blend.current - d * 2) : 0
+    const e = blend.current * blend.current * (3 - 2 * blend.current)
+    if (panel && e >= 0.999) {
       // arrival framing: 3/4 view of the node, node held in the left part of the frame
       const [nx, nz] = panel.pos
-      const wide = state.size.width > state.size.height
+      const wide = state.size.width > 720 && state.size.width > state.size.height
       tmp.desired.set(nx + (wide ? -14 : -11), wide ? 13 : 16, nz + (wide ? 16 : 22))
       tmp.look.set(nx + (wide ? 6 : 0), wide ? 0.5 : -2.5, nz + (wide ? -2 : 3))
       camera.position.copy(tmp.desired)
       camera.lookAt(tmp.look)
+      camLook.current.copy(tmp.look)
+    } else if (panel || e > 0) {
+      // blending between the chase cam and the arrival framing
+      const node = panel ?? lastPanel.current ?? nodes[1]
+      const [nx, nz] = node.pos
+      const wide = state.size.width > 720 && state.size.width > state.size.height
+      const cu = (((u - theme.camera.distance / len) % 1) + 1) % 1
+      curve.getPointAt(cu, tmp.cam)
+      tmp.cam.y += theme.camera.height
+      tmp.desired.set(nx + (wide ? -14 : -11), wide ? 13 : 16, nz + (wide ? 16 : 22))
+      tmp.desired.lerp(tmp.cam, 1 - e)
+      tmp.look.set(nx + (wide ? 6 : 0), wide ? 0.5 : -2.5, nz + (wide ? -2 : 3))
+      curve.getTangentAt(u, tmp.tan)
+      tmp.cam.copy(packetPos.current).addScaledVector(tmp.tan, theme.camera.lookAhead)
+      tmp.cam.y = PACKET_Y + 0.6
+      tmp.look.lerp(tmp.cam, 1 - e)
+      camera.position.lerp(tmp.desired, 1 - Math.exp(-d * 8))
+      camLook.current.lerp(tmp.look, 1 - Math.exp(-d * 8))
+      camera.lookAt(camLook.current)
     } else {
       const portrait = state.size.width / state.size.height < 0.8
       const k = portrait ? 1.25 : 1
@@ -638,6 +703,7 @@ export default function World({ theme, directionId, fixedU, fixedT, panelNode, o
       tmp.look.y = PACKET_Y + 0.6
       if (fixedU !== undefined) camera.position.copy(tmp.desired)
       else camera.position.lerp(tmp.desired, 1 - Math.exp(-d * 6))
+      camLook.current.copy(tmp.look)
       camera.lookAt(tmp.look)
     }
     const fov = state.size.width / state.size.height < 0.8 ? theme.camera.fov * 1.3 : theme.camera.fov

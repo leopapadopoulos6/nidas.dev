@@ -218,3 +218,8 @@
 .hud--phosphor { --scrim: rgba(1, 5, 2, 0.7); }
 .hud--hot-path { --scrim: rgba(7, 4, 13, 0.6); }
 @media (max-width: 720px) { .hud::before { height: 130px; } .hud::after { height: 200px; } }
+
+/* prototype disclaimer (live mode only) */
+.hud__badge { top: auto; bottom: 64px; left: 24px; font-size: 11px; opacity: 0.75; max-width: calc(100vw - 48px); }
+.proto:has(.hud__panel) .hud__badge { display: none; }
+@media (max-width: 720px) { .hud__badge { bottom: auto; top: 96px; left: 14px; right: 14px; } }
