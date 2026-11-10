@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import gsap from 'gsap'
 import * as THREE from 'three'
 import { bootEl, bootLine } from '../site/boot'
@@ -58,6 +58,7 @@ function hideBoot() {
 
 export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps) {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const ready = useWorld((s) => s.ready)
   const panel = useWorld((s) => s.panel)
 
@@ -136,7 +137,8 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     if (!ready) return
     if (!panel && useWorld.getState().autopilot) return
     const want = panel ? `/${panel}` : '/'
-    if (window.location.pathname !== want) navigate(want)
+    if (pathname !== want) navigate(want)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [panel, ready, navigate])
 
   const arrive = useCallback((id: NodeId) => {
