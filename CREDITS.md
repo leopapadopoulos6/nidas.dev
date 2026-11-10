@@ -1,10 +1,10 @@
 # Credits
 
-Everything in the 3D world (buildings, network nodes, links, packet, trail, floor, rain) is built in code from Three.js primitives and custom shaders written for this project. No third-party models, textures, HDRIs, or sounds are used yet.
+Everything in the 3D world (buildings, network nodes, links, packet, trail, floor) is built in code from Three.js primitives and custom shaders written for this project. No third-party models, textures, HDRIs, or sounds are used.
 
 ## Fonts
 
-All fonts are self-hosted from npm (Fontsource builds of the Google Fonts sources). Only the concept board and prototypes load them for now.
+All fonts are self-hosted from npm (Fontsource builds of the Google Fonts sources). The site uses VT323 and IBM Plex Mono (direction B). The others are loaded only by the internal concept board at /concepts.
 
 | Font | Use | License | Package |
 | --- | --- | --- | --- |
@@ -20,8 +20,11 @@ All fonts are self-hosted from npm (Fontsource builds of the Google Fonts source
 | Library | License |
 | --- | --- |
 | three | MIT |
-| @react-three/fiber, @react-three/drei, @react-three/postprocessing | MIT |
+| @react-three/fiber, @react-three/drei, @react-three/postprocessing, @react-three/rapier | MIT |
+| @dimforge/rapier3d-compat (physics engine, WebAssembly) | Apache-2.0 |
 | postprocessing (pmndrs) | Zlib |
+| gsap | GSAP Standard "No Charge" License (free for commercial use) |
+| zustand | MIT |
 | react, react-dom, react-router | MIT |
 | vite, @vitejs/plugin-react, typescript | MIT / Apache-2.0 |
 

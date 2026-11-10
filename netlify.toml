@@ -7,14 +7,28 @@
 [build.environment]
   NODE_VERSION = "22.23.0"
 
-# Long-cache hashed build assets.
+# Every site route is prerendered to its own HTML file (/, /2d, /about, ...), so there is no
+# SPA catch-all: unknown paths get dist/404.html with a real 404 status.
+
+# Internal design notes are client-rendered from one shell.
+[[redirects]]
+  from = "/concepts/*"
+  to = "/concepts/index.html"
+  status = 200
+
+[[headers]]
+  for = "/concepts/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
+# Hashed build assets never change.
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# SPA fallback for client-side routes (/concepts, /apps, ...).
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
