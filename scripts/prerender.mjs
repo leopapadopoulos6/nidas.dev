@@ -19,17 +19,19 @@ const preload = ['ibm-plex-mono-latin-400-normal', 'vt323-latin-400-normal']
   .filter(Boolean)
   .map((f) => `<link rel="preload" href="/assets/${f}" as="font" type="font/woff2" crossorigin />`)
   .join('\n    ')
+const worldChunk = assets.find((f) => f.startsWith('WorldLayer-') && f.endsWith('.js'))
+const head = `${preload}\n    <script>window.__WORLD_CHUNK__ = ${JSON.stringify(worldChunk ? `/assets/${worldChunk}` : '')}</script>`
 
 function page({ url, title, description, body, noindex = false }) {
   let html = template
-    .replace('<!--preload-->', preload)
+    .replace('<!--preload-->', head)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*"/, `$1${esc(description)}"`)
     .replace(/(<meta property="og:title" content=")[^"]*"/, `$1${esc(title)}"`)
     .replace(/(<meta property="og:description" content=")[^"]*"/, `$1${esc(description)}"`)
     .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${origin}${url}"`)
     .replace(/(<link rel="canonical" href=")[^"]*"/, `$1${origin}${url}"`)
-    .replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+    .replace('<div id="root"></div>', body ? `<div id="root" data-route="${url}">${body}</div>` : '<div id="root"></div>')
   if (noindex) html = html.replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />\n    <meta name="robots" content="noindex" />')
   return html
 }

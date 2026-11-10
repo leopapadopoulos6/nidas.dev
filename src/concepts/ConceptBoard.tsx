@@ -189,7 +189,7 @@ export default function ConceptBoard() {
     <div className="board">
       <header className="top wrap">
         <p className="eyebrow">
-          <Link to="/">nidas.dev</Link> / concepts · phase 2 · <span className="status">waiting for your pick</span>
+          <Link to="/">nidas.dev</Link> / concepts · phase 2 · <span className="status">picked: B · Phosphor (phase 3 in progress)</span>
         </p>
         <h1>Packet</h1>
         <p className="lead">
@@ -210,7 +210,7 @@ export default function ConceptBoard() {
         </nav>
         <div className="tldr">
           <p>
-            <b>Recommendation:</b> A · Dark Fiber, borrowing Phosphor&rsquo;s terminal voice for the HUD copy. <a href="#pick">Why ↓</a>
+            <b>Picked by Leo: B · Phosphor.</b> (My recommendation was A · Dark Fiber; the reasoning is kept below for the record.) <a href="#pick">Why ↓</a>
           </p>
         </div>
       </header>

@@ -26,7 +26,9 @@ export interface WorldLayerProps {
 
 const HOTKEYS: Record<string, NodeId> = { Digit1: 'about', Digit2: 'experience', Digit3: 'projects', Digit4: 'contact', Digit5: 'apps' }
 
-const pinnedFx = () => new URLSearchParams(window.location.search).has('fx')
+// Read once: in-world navigation drops the query string.
+const PINNED_FX = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('fx')
+const pinnedFx = () => PINNED_FX === 'crt' || PINNED_FX === 'lite'
 
 /** Fires once the first frame has rendered with physics running: the world is live. */
 function Ready() {
@@ -76,9 +78,8 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     const touch = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
     useWorld.getState().setTouch(touch)
     // ?fx=crt or ?fx=lite pins the effects tier (otherwise it drops to lite when frames are slow).
-    const fx = new URLSearchParams(window.location.search).get('fx')
-    if (fx === 'lite') useWorld.getState().setQuality('low')
-    if (fx === 'crt') useWorld.getState().setQuality('high')
+    if (PINNED_FX === 'lite') useWorld.getState().setQuality('low')
+    if (PINNED_FX === 'crt') useWorld.getState().setQuality('high')
     return () => {
       clearTimeout(t)
       const b = bootEl()
