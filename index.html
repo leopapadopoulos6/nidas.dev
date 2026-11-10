@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Leo Papadopoulos · Network Engineer · nidas.dev</title>
+    <meta name="description" content="Leo Papadopoulos, network engineer in New York. Tour the site as a traceroute through a small network district, or read the text version." />
+    <meta name="theme-color" content="#010502" />
+    <link rel="canonical" href="https://nidas.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="nidas.dev" />
+    <meta property="og:title" content="Leo Papadopoulos · Network Engineer · nidas.dev" />
+    <meta property="og:description" content="Leo Papadopoulos, network engineer in New York. Tour the site as a traceroute through a small network district, or read the text version." />
+    <meta property="og:url" content="https://nidas.dev/" />
+    <meta property="og:image" content="https://nidas.dev/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!--preload-->
+    <script>
+      // Boot: decide 2D or 3D before first paint. Kept tiny and dependency-free.
+      // 3D only for capable, non-reduced-motion desktop browsers; everyone else gets the
+      // prerendered text version (with an opt-in button). ?2d / ?3d force a mode.
+      ;(function () {
+        var d = document.documentElement, m = '2d', why = '', gl = 0
+        try {
+          var c = document.createElement('canvas'), x = c.getContext('webgl2')
+          gl = x ? 1 : 0
+          if (x && x.getExtension('WEBGL_lose_context')) x.getExtension('WEBGL_lose_context').loseContext()
+        } catch (e) {}
+        var q = location.search, p = location.pathname, pref = null
+        try { pref = localStorage.getItem('packet:mode') } catch (e) {}
+        var mm = function (s) { return window.matchMedia && matchMedia(s).matches }
+        var site = /^\/(about|experience|projects|contact|apps)?\/?$/.test(p)
+        var nav = navigator, conn = nav.connection || {}
+        var bot = /bot|crawl|spider|slurp|preview|lighthouse|headless/i.test(nav.userAgent) || nav.webdriver
+        if (!site) why = 'route'
+        else if (!gl) why = 'no-webgl2'
+        else if (/[?&]2d\b/.test(q)) why = 'query'
+        else if (/[?&]3d\b/.test(q)) m = '3d'
+        else if (pref === '2d') why = 'pref'
+        else if (pref === '3d' && !bot) m = '3d'
+        else if (bot) why = 'bot'
+        else if (mm('(prefers-reduced-motion: reduce)')) why = 'reduced-motion'
+        else if (conn.saveData) why = 'save-data'
+        else if (nav.deviceMemory && nav.deviceMemory < 4) why = 'low-memory'
+        else if (mm('(max-width: 820px)') || mm('(pointer: coarse)')) why = 'small-or-touch'
+        else m = '3d'
+        d.dataset.mode = m
+        d.dataset.gl = String(gl)
+        window.__PACKET__ = { mode: m, gl: gl, why: why }
+        // Start fetching the 3D chunk right away (its path is injected at build time).
+        if (m === '3d' && window.__WORLD_CHUNK__) {
+          var l = document.createElement('link')
+          l.rel = 'modulepreload'
+          l.href = window.__WORLD_CHUNK__
+          document.head.appendChild(l)
+        }
+      })()
+    </script>
+    <style>
+      /* Static loader: visible only while the 3D world streams in. Pure CSS, no JS bundle needed. */
+      #boot { display: none }
+      html[data-mode='3d'] #boot {
+        display: grid; position: fixed; inset: 0; z-index: 50; place-items: center;
+        background: #010502; color: #8cffae; font: 14px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+        padding: 24px;
+      }
+      html[data-mode='3d'] body { overflow: hidden }
+      html[data-mode='3d'] #root > .tw { visibility: hidden }
+      #boot pre { margin: 0 0 4px; color: #3fae63; white-space: pre-wrap }
+      #boot ol { list-style: none; margin: 0; padding: 0; min-width: min(460px, 86vw) }
+      #boot li::before { content: '  '; white-space: pre }
+      #boot li[data-state='run']::after { content: ' \2588'; animation: boot-blink 1s steps(1) infinite }
+      #boot li[data-state='ok']::after { content: '  ok'; color: #2bd45f }
+      #boot li[data-state='fail']::after { content: '  failed'; color: #ff4f4f }
+      #boot a { color: #2bd45f }
+      #boot .boot-skip { margin-top: 18px; font-size: 13px; color: #3fae63 }
+      @keyframes boot-blink { 50% { opacity: 0 } }
+    </style>
+  </head>
+  <body>
+    <div id="boot" role="status" aria-live="polite">
+      <div>
+        <pre>$ traceroute nidas.dev
+traceroute to nidas.dev (198.51.100.7), 64 hops max</pre>
+        <ol id="boot-lines"><li data-state="run">0  gw.visitor  resolving</li></ol>
+        <p class="boot-skip">in a hurry? <a href="/2d">read the text version</a></p>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

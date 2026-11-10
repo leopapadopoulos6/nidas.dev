@@ -1,0 +1,33 @@
+# Credits
+
+Everything in the 3D world (buildings, network nodes, links, packet, trail, floor) is built in code from Three.js primitives and custom shaders written for this project. No third-party models, textures, HDRIs, or sounds are used.
+
+## Fonts
+
+All fonts are self-hosted from npm (Fontsource builds of the Google Fonts sources). The site uses VT323 and IBM Plex Mono (direction B). The others are loaded only by the internal concept board at /concepts.
+
+| Font | Use | License | Package |
+| --- | --- | --- | --- |
+| Archivo (variable, width axis) | Direction A display | OFL-1.1 | `@fontsource-variable/archivo` |
+| JetBrains Mono | Direction A mono | OFL-1.1 | `@fontsource/jetbrains-mono` |
+| VT323 | Direction B display | OFL-1.1 | `@fontsource/vt323` |
+| IBM Plex Mono | Direction B mono | OFL-1.1 | `@fontsource/ibm-plex-mono` |
+| Tektur (variable, width axis) | Direction C display | OFL-1.1 | `@fontsource-variable/tektur` |
+| Martian Mono (variable, width axis) | Direction C mono | OFL-1.1 | `@fontsource-variable/martian-mono` |
+
+## Libraries
+
+| Library | License |
+| --- | --- |
+| three | MIT |
+| @react-three/fiber, @react-three/drei, @react-three/postprocessing, @react-three/rapier | MIT |
+| @dimforge/rapier3d-compat (physics engine, WebAssembly) | Apache-2.0 |
+| postprocessing (pmndrs) | Zlib |
+| gsap | GSAP Standard "No Charge" License (free for commercial use) |
+| zustand | MIT |
+| react, react-dom, react-router | MIT |
+| vite, @vitejs/plugin-react, typescript | MIT / Apache-2.0 |
+
+## Research screenshots
+
+`public/concepts/research/` holds small screenshots of third-party portfolios. They are used on the internal concept board as research references, each credited and linked to its original site. No code, models, textures, or distinctive designs were taken from them. They should be removed before anything from `/concepts` ships publicly.
