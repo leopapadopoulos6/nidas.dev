@@ -1,0 +1,73 @@
+/* Direction B · Phosphor. One hue on a dark tube; red is reserved for ACCESS DENIED. */
+:root {
+  --tube: #010502;
+  --glass: #04140a;
+  --dim: #0f4a22;
+  --muted: #3fae63; /* secondary text, ~6.5:1 on tube */
+  --phosphor: #2bd45f;
+  --bright: #8cffae; /* body text, ~15:1 on tube */
+  --hot: #e6ffee;
+  --fault: #ff4f4f;
+  --glow: 0 0 8px rgba(43, 212, 95, 0.55);
+  --f-display: 'VT323', ui-monospace, monospace;
+  --f-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--tube);
+}
+body {
+  background: var(--tube);
+  color: var(--bright);
+  font: 15px/1.65 var(--f-mono);
+  overflow-x: hidden;
+}
+a {
+  color: var(--phosphor);
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--hot);
+}
+:focus-visible {
+  outline: 2px solid var(--hot);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--phosphor);
+  color: var(--tube);
+}
+.todo {
+  color: var(--muted);
+  border-bottom: 1px dashed var(--dim);
+}
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+.skip:focus {
+  left: 16px;
+  top: 16px;
+  z-index: 100;
+  background: var(--phosphor);
+  color: var(--tube);
+  padding: 4px 10px;
+}
+
+.route-loading {
+  font: 13px/1.4 var(--f-mono);
+  color: var(--muted);
+  padding: 24px;
+}
