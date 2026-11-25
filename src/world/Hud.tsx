@@ -167,7 +167,7 @@ function Panel() {
   if (!panel) return null
   const meta = sectionById(panel)!
   const Body = bodies[panel]
-  const order: SectionId[] = ['about', 'experience', 'contact']
+  const order: SectionId[] = ['about', 'experience', 'projects', 'contact']
   const i = order.indexOf(panel)
   const next = panel === 'apps' ? 'experience' : order[(i + 1) % order.length]
   const title = panel === 'apps' ? 'ACCESS DENIED' : meta.label
@@ -250,7 +250,7 @@ export default function Hud({ onExit }: { onExit: () => void }) {
         <kbd>W</kbd>
         <kbd>A</kbd>
         <kbd>S</kbd>
-        <kbd>D</kbd> drive · <kbd>shift</kbd> boost · <kbd>1</kbd>–<kbd>4</kbd> autopilot · <kbd>esc</kbd> close
+        <kbd>D</kbd> drive · <kbd>shift</kbd> boost · <kbd>1</kbd>–<kbd>5</kbd> autopilot · <kbd>esc</kbd> close
       </p>
       <Stick />
       <Panel />

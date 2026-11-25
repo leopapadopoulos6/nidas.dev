@@ -44,6 +44,16 @@ export interface SkillGroup {
   items: string[]
 }
 
+export interface Project {
+  id: string
+  name: string
+  summary: string
+  role: string
+  stack: string[]
+  links: { label: string; href: string }[]
+  status: 'live' | 'archived' | 'in progress' | 'TODO'
+}
+
 export interface LinkItem {
   id: 'email' | 'github' | 'linkedin' | 'site' | 'resume'
   label: string

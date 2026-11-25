@@ -247,6 +247,37 @@ function Switch() {
   )
 }
 
+function Server() {
+  const bars = useRef<THREE.Group>(null)
+  useFrame((s) => {
+    const g = bars.current
+    if (!g) return
+    const t = s.clock.elapsedTime
+    g.children.forEach((ch, i) => {
+      const m = (ch as THREE.Mesh).material as THREE.MeshBasicMaterial
+      const v = 0.5 + 0.5 * Math.sin(t * (1 + (i % 5) * 0.7) + i * 1.7)
+      m.color.copy(c(i % 7 === 0 ? theme.active : theme.ring, 0.6 + v * 2.2))
+    })
+  })
+  return (
+    <group rotation-y={0.4}>
+      {[-3.2, 0, 3.2].map((x, k) => (
+        <Edged key={k} size={[2.6, 9 + k * 1.5, 2.6]} position={[x, (9 + k * 1.5) / 2, 0]} />
+      ))}
+      <group ref={bars}>
+        {[-3.2, 0, 3.2].flatMap((x, k) =>
+          Array.from({ length: 11 + k * 2 }, (_, j) => (
+            <mesh key={`${k}-${j}`} position={[x, 0.9 + j * 0.72, 1.32]}>
+              <boxGeometry args={[1.9, 0.08, 0.04]} />
+              <meshBasicMaterial color={theme.ring} />
+            </mesh>
+          )),
+        )}
+      </group>
+    </group>
+  )
+}
+
 function AccessPoint() {
   const rings = useRef<THREE.Group>(null)
   useFrame((s) => {
@@ -336,7 +367,7 @@ function Beacon({ color, height = 46 }: { color: THREE.Color; height?: number })
   )
 }
 
-const labelY: Record<HopNode['kind'], number> = { gateway: 3, router: 5.5, switch: 6.5, ap: 12.5, firewall: 9 }
+const labelY: Record<HopNode['kind'], number> = { gateway: 3, router: 5.5, switch: 6.5, server: 15, ap: 12.5, firewall: 9 }
 
 function NodeSite({ node, active, onPick }: { node: HopNode; active: boolean; onPick: (id: NodeId) => void }) {
   const ringCol = useMemo(() => c(active ? theme.active : theme.ring, active ? 2.6 : 1.8), [active])
@@ -350,6 +381,7 @@ function NodeSite({ node, active, onPick }: { node: HopNode; active: boolean; on
     gateway: null,
     router: <Router active={active} />,
     switch: <Switch />,
+    server: <Server />,
     ap: <AccessPoint />,
     firewall: <Firewall />,
   }[node.kind]
@@ -396,6 +428,7 @@ function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
   const at = (id: NodeId) => nodes.find((n) => n.id === id)!.pos
   const [ax, az] = at('about')
   const [ex, ez] = at('experience')
+  const [px, pz] = at('projects')
   const [cx, cz] = at('contact')
   const [fx, fz] = at('apps')
   return (
@@ -403,6 +436,7 @@ function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
       <RigidBody type="fixed" colliders={false}>
         <CylinderCollider args={[1.5, 3.7]} position={[ax, 1.25, az]} />
         <CuboidCollider args={[4.6, 2, 1.9]} position={[ex, 1.25, ez]} rotation={[0, -0.5, 0]} />
+        <CuboidCollider args={[4.6, 2, 1.4]} position={[px, 1.25, pz]} rotation={[0, 0.4, 0]} />
         <CylinderCollider args={[1.5, 1.9]} position={[cx, 1.25, cz]} />
       </RigidBody>
       <RigidBody type="fixed" colliders={false} onCollisionEnter={onFirewall}>
