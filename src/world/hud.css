@@ -628,3 +628,17 @@
   overflow: hidden;
   pointer-events: none;
 }
+
+.world__diag-errors {
+  margin: 0;
+  max-height: 34vh;
+  overflow: auto;
+  font: 10.5px/1.45 var(--f-mono);
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--dim);
+  padding: 8px;
+  user-select: text;
+  -webkit-user-select: text;
+}

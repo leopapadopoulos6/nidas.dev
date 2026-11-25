@@ -42,13 +42,13 @@ function Ready() {
 }
 
 /** Catches errors from inside the 3D scene so the world can rebuild itself instead of quitting. */
-class SceneBoundary extends Component<{ onError: (e: Error) => void; children: ReactNode }, { failed: boolean }> {
+class SceneBoundary extends Component<{ onError: (e: Error, componentStack: string) => void; children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
   static getDerivedStateFromError() {
     return { failed: true }
   }
-  componentDidCatch(error: Error) {
-    this.props.onError(error)
+  componentDidCatch(error: Error, info: { componentStack?: string | null }) {
+    this.props.onError(error, info.componentStack ?? '')
   }
   render() {
     return this.state.failed ? null : this.props.children
@@ -94,7 +94,7 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   const recovering = useRef(false)
   const started = useRef(performance.now())
   const shownAt = useRef(-Infinity) // when the page last came back from the background
-  const diag = useRef<{ log: string[]; info: string }>({ log: [], info: '' })
+  const diag = useRef<{ log: string[]; info: string; errors: string[] }>({ log: [], info: '', errors: [] })
 
   // Fresh session on every mount: spawn at hop 0. Done before the scene renders so the packet starts there.
   useState(() => {
@@ -168,6 +168,15 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     [remount, giveUp],
   )
 
+  const [copied, setCopied] = useState(false)
+  const copyDiag = useCallback(() => {
+    const text = [`nidas.dev 3D diagnostics · ${__BUILD__} · ${navigator.userAgent}`, `log: ${diag.current.log.join(' ')}`, `fx ${useWorld.getState().quality} · ${diag.current.info}`, ...diag.current.errors].join('\n')
+    navigator.clipboard?.writeText(text).then(
+      () => setCopied(true),
+      () => setCopied(false),
+    )
+  }, [])
+
   const retry = useCallback(() => {
     resets.current = []
     tries.current = 0
@@ -191,6 +200,14 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
       if (document.visibilityState === 'visible') shownAt.current = performance.now()
     }
     document.addEventListener('visibilitychange', onVisible)
+    const onUncaught = (ev: ErrorEvent | PromiseRejectionEvent) => {
+      const err = 'reason' in ev ? ev.reason : ev.error
+      const msg = err instanceof Error ? `${err.name}: ${err.message}\n${(err.stack || '').split('\n').slice(0, 6).join('\n')}` : String('message' in ev ? ev.message : err)
+      if (diag.current.errors.length < 3) diag.current.errors.push(`uncaught ${msg}`)
+      diag.current.log.push(`U${Math.round((performance.now() - started.current) / 1000)}s`)
+    }
+    window.addEventListener('error', onUncaught)
+    window.addEventListener('unhandledrejection', onUncaught)
     // Phones start on the light effects (no post-processing buffers): less graphics memory, fewer drops.
     if (coarsePointer()) useWorld.getState().setQuality('low')
     // ?fx=crt or ?fx=lite pins the effects tier (otherwise it drops to lite when frames are slow).
@@ -199,6 +216,8 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     return () => {
       clearTimeout(t)
       document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('error', onUncaught)
+      window.removeEventListener('unhandledrejection', onUncaught)
       liveCanvas.current = null // leaving 3D on purpose: ignore the teardown of the last canvas
       const b = bootEl()
       if (b) b.style.display = 'none'
@@ -275,7 +294,17 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   return (
     <div className={`world ${quality === 'low' ? 'is-lite' : ''}`}>
       {trouble === null && (
-        <SceneBoundary key={scene} onError={(e) => rebuild('error', e.message)}>
+        <SceneBoundary
+          key={scene}
+          onError={(e, componentStack) => {
+            // Keep the first few errors in full for the diagnostics block (message, stack, component stack).
+            if (diag.current.errors.length < 3) {
+              const where = (componentStack || '').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 6).join(' < ')
+              diag.current.errors.push(`${e.name}: ${e.message}\n${(e.stack || '').split('\n').slice(0, 6).join('\n')}\ncomponents: ${where}`)
+            }
+            rebuild('error', e.message)
+          }}
+        >
           <Canvas
             className="world__canvas"
             dpr={dpr}
@@ -329,14 +358,18 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
           </p>
           <p>Your browser keeps dropping the graphics context, usually because it is short on memory.</p>
           <p className="world__diag">
-            diag: {diag.current.log.join(' ')} · fx {useWorld.getState().quality} · {diag.current.info}
+            diag: {diag.current.log.join(' ')} · fx {useWorld.getState().quality} · {diag.current.info} · {__BUILD__}
           </p>
+          {diag.current.errors.length > 0 && <pre className="world__diag-errors">{diag.current.errors.join('\n---\n')}</pre>}
           <div className="world__stuck-actions">
             <button type="button" className="primary" onClick={retry}>
               restart 3D
             </button>
             <button type="button" onClick={onExit}>
               read the text version
+            </button>
+            <button type="button" onClick={copyDiag}>
+              {copied ? 'copied' : 'copy diagnostics'}
             </button>
           </div>
         </div>
