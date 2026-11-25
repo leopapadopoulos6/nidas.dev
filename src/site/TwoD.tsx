@@ -1,4 +1,3 @@
-import { Link } from 'react-router'
 import { profile } from '../content'
 import { bodies } from './bodies'
 import { publicSections, sections, type SectionId } from './sections'
@@ -100,7 +99,7 @@ export default function TwoD({ active, hidden, notice, onEnter3d }: Props) {
           ))}
         </p>
         <p>
-          © {profile.name} · {profile.site} · <Link to="/concepts">design notes</Link>
+          © {profile.name} · {profile.site}
         </p>
       </footer>
     </div>

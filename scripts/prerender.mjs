@@ -8,7 +8,7 @@ const dist = path.resolve('dist')
 const ssrEntry = path.resolve('dist-ssr/entry-server.js')
 const { render, routes } = await import(pathToFileURL(ssrEntry).href)
 const template = fs.readFileSync(path.join(dist, 'index.html'), 'utf8')
-const origin = 'https://nidas.dev'
+const origin = 'https://www.nidas.dev' // the apex redirects here
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
@@ -43,12 +43,28 @@ function write(file, html) {
   console.log(`prerendered ${file.padEnd(24)} ${(Buffer.byteLength(html) / 1024).toFixed(1)} kB`)
 }
 
-for (const r of routes) write(r.file, page({ ...r, body: render(r.url) }))
+for (const r of routes) {
+  const body = render(r.url)
+  // Never ship placeholder copy: unfinished content values contain "TODO" (see src/content).
+  const visible = body.replace(/<[^>]+>/g, ' ')
+  if (/\bTODO\b/.test(visible)) {
+    const at = visible.indexOf('TODO')
+    throw new Error(`Placeholder text on ${r.url}: "…${visible.slice(Math.max(0, at - 60), at + 40).replace(/\s+/g, ' ')}…". Fill it in src/content or leave the field empty.`)
+  }
+  write(r.file, page({ ...r, body }))
+}
+
+// Crawlers: robots.txt and a sitemap of the public routes.
+const publicUrls = routes.map((r) => r.url).filter((u) => u !== '/2d' && u !== '/apps')
+fs.writeFileSync(
+  path.join(dist, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${publicUrls.map((u) => `  <url><loc>${origin}${u}</loc></url>`).join('\n')}\n</urlset>\n`,
+)
+fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`)
+console.log(`wrote sitemap.xml (${publicUrls.length} urls) and robots.txt`)
 
 // 404: Netlify serves dist/404.html for unknown paths.
 write('404.html', page({ url: '/404', title: 'Request timed out · nidas.dev', description: 'Page not found.', body: render('/404-not-found'), noindex: true }))
 
-// Client-only shell for the internal design notes (/concepts). Not indexed.
-write('concepts/index.html', page({ url: '/concepts', title: 'Packet concept board · nidas.dev', description: 'Internal design notes for nidas.dev v2.', body: '', noindex: true }))
 
 fs.rmSync(path.resolve('dist-ssr'), { recursive: true, force: true })

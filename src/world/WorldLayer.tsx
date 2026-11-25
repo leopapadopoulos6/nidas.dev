@@ -159,7 +159,11 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
         dpr={[1, 1.75]}
         gl={{ antialias: false, powerPreference: 'high-performance', stencil: false }}
         camera={{ fov: theme.camera.fov, near: 0.1, far: 420, position: [SPAWN.x, 14, SPAWN.z + 14] }}
-        onCreated={({ scene }) => {
+        onCreated={({ scene, gl }) => {
+          gl.domElement.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault()
+            onFail('the graphics context was lost')
+          }, { once: true })
           scene.background = new THREE.Color(theme.background)
           scene.fog = new THREE.FogExp2(theme.background, theme.fogDensity)
           bootLine(' 3  spawning packet at hop 0')

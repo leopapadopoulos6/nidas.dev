@@ -21,7 +21,6 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 - `src/site/`: the 2D site and shared pieces. `sections.ts` is the single registry of sections/hops (ids, hop numbers, hosts, titles, descriptions). `bodies/` renders each section; the 2D page and the 3D panels both use them. `Site.tsx` always renders the 2D page (that is what the prerendered HTML contains) and lazy-loads `world/WorldLayer` on top when the boot script chose 3D.
 - `src/world/`: the lazy 3D chunk. `layout.ts` (nodes, links, city, autopilot route planning), `District.tsx` (visuals + static colliders), `Packet.tsx` (rapier body, controls, autopilot, hop detection, trail), `CameraRig.tsx`, `Effects.tsx`, `Hud.tsx` + `hud.css`, `store.ts` (zustand), `input.ts`.
 - `index.html`: inline boot script (decides 2D vs 3D before first paint) and the static terminal loader (`#boot`).
-- `src/concepts/`: Phase 2 concept board and prototypes at `/concepts` (internal, noindex). Frozen; don't build on it. Remove the third-party research screenshots before launch.
 - `nidas.dev/`: the v1 site. Delete only after `archive/v1` exists on GitHub.
 
 ## Conventions
@@ -42,6 +41,8 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 
 ## Git
 
-- `concept/packet`: the working branch (draft PR into `main`, used for previews). Work here unless Leo says otherwise.
-- `feature/projects`: the shelved projects section, kept as one commit ("Restore the projects section") on top of `concept/packet`. To bring projects back, rebase it onto the current `concept/packet` and merge it, when Leo asks.
-- Never push to `main`, merge, or create or delete branches or tags unless Leo asks. `main` changes only when Leo merges.
+- `main`: production. Netlify builds www.nidas.dev from it. Changes only when Leo asks (normally by merging `concept/packet`).
+- `concept/packet`: the v2 working branch. Work here; open PRs into `main`.
+- `feature/projects`: the shelved projects section, one commit ("Restore the projects section") on top of `concept/packet`. To bring projects back, rebase it onto the current `concept/packet` and merge it, when Leo asks.
+- `archive`: v1 exactly as it was live until the v2 launch (commit c7bad11). Restore v1 with Netlify's "Publish deploy" on deploy `667854289ac5900008cddef3`, or build `archive` with base directory `nidas.dev`, build command `CI=false npm run build`, publish directory `nidas.dev/build` (without `CI=false` the v1 build fails on lint warnings).
+- Never push to `main`, merge, or create or delete branches or tags unless Leo asks.

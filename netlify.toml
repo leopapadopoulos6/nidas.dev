@@ -10,17 +10,6 @@
 # Every site route is prerendered to its own HTML file (/, /2d, /about, ...), so there is no
 # SPA catch-all: unknown paths get dist/404.html with a real 404 status.
 
-# Internal design notes are client-rendered from one shell.
-[[redirects]]
-  from = "/concepts/*"
-  to = "/concepts/index.html"
-  status = 200
-
-[[headers]]
-  for = "/concepts/*"
-  [headers.values]
-    X-Robots-Tag = "noindex"
-
 # Hashed build assets never change.
 [[headers]]
   for = "/assets/*"
