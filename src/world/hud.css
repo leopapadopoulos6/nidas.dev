@@ -1,0 +1,550 @@
+/* 3D layer + terminal HUD (direction B · Phosphor). */
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--tube);
+  overflow: hidden;
+  touch-action: none;
+}
+.world__canvas {
+  position: absolute !important;
+  inset: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  font: 12.5px/1.6 var(--f-mono);
+  color: var(--phosphor);
+  text-shadow: 0 0 6px rgba(43, 212, 95, 0.5);
+}
+.hud > * {
+  position: absolute;
+  pointer-events: auto;
+}
+.hud button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  text-shadow: inherit;
+}
+.hud button:focus-visible {
+  outline: 2px solid var(--hot);
+  outline-offset: 2px;
+}
+.hud ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hud p {
+  margin: 0;
+}
+/* scrims keep text readable over the scene */
+.hud::before,
+.hud::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.hud::before {
+  top: 0;
+  height: 210px;
+  background: linear-gradient(rgba(1, 5, 2, 0.72), transparent);
+}
+.hud::after {
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(transparent, rgba(1, 5, 2, 0.75));
+}
+
+.hud__trace {
+  top: max(18px, env(safe-area-inset-top, 0px));
+  left: max(20px, env(safe-area-inset-left, 0px));
+  width: min(420px, calc(100vw - 40px));
+  background: rgba(1, 8, 3, 0.8);
+  border: 1px solid var(--dim);
+  padding: 10px 14px;
+}
+.hud__cmd {
+  color: var(--bright);
+  margin-bottom: 4px !important;
+}
+.hud__hops li {
+  display: grid;
+  grid-template-columns: 2.2ch minmax(0, 1fr) auto;
+  gap: 1.2ch;
+  white-space: nowrap;
+  line-height: 1.7;
+}
+.hud__hops .h-host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud__hops li.is-pending {
+  color: var(--mid, #1a7a3a);
+}
+.hud__hops li.is-current {
+  background: var(--phosphor);
+  color: var(--tube);
+  text-shadow: none;
+}
+.hud__hops li.is-denied {
+  color: var(--fault);
+  text-shadow: 0 0 6px rgba(255, 79, 79, 0.5);
+}
+.hud__hops li.is-denied.is-current {
+  background: var(--fault);
+  color: var(--tube);
+}
+
+.hud__top-right {
+  top: max(18px, env(safe-area-inset-top, 0px));
+  right: max(20px, env(safe-area-inset-right, 0px));
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+.hud__skip {
+  background: var(--phosphor) !important;
+  color: var(--tube) !important;
+  text-shadow: none !important;
+  padding: 3px 10px !important;
+  font-weight: 600 !important;
+}
+.hud__skip:hover {
+  background: var(--hot) !important;
+}
+.hud__stats {
+  display: flex;
+  border: 1px solid var(--dim);
+  background: rgba(1, 8, 3, 0.8);
+}
+.hud__stats div {
+  display: grid;
+  padding: 4px 14px;
+  border-left: 1px solid var(--dim);
+}
+.hud__stats div:first-child {
+  border-left: 0;
+}
+.hud__stats span {
+  font-size: 10px;
+  color: #1a7a3a;
+  text-shadow: none;
+}
+.hud__stats b {
+  font: 400 30px/1 var(--f-display);
+  color: var(--bright);
+  font-variant-numeric: tabular-nums;
+}
+.hud__stats small {
+  font-size: 16px;
+  margin-left: 2px;
+}
+.hud__tools {
+  display: flex;
+  gap: 12px;
+  font-size: 11.5px;
+  color: #3fae63;
+}
+.hud__tools button:hover {
+  color: var(--hot);
+}
+
+.hud__hint {
+  top: max(18px, env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--bright);
+  background: rgba(1, 8, 3, 0.8);
+  border: 1px solid var(--dim);
+  padding: 4px 10px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hud__hint::after {
+  content: '█';
+  animation: hud-blink 1s steps(1) infinite;
+  margin-left: 4px;
+}
+
+.hud__route {
+  left: max(20px, env(safe-area-inset-left, 0px));
+  bottom: max(18px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+  max-width: calc(100vw - 40px);
+}
+.hud__route-label {
+  color: #1a7a3a;
+  margin-right: 8px;
+  text-shadow: none;
+}
+.hud__route-label::before {
+  content: '$ ';
+}
+.hud__route button {
+  padding: 4px 6px !important;
+}
+.hud__route button::before {
+  content: '[';
+}
+.hud__route button::after {
+  content: ']';
+}
+.hud__route button:hover,
+.hud__route button.is-going {
+  color: var(--hot);
+}
+.hud__route button.is-current {
+  background: var(--phosphor);
+  color: var(--tube);
+  text-shadow: none;
+}
+.hud__route button.is-locked {
+  color: var(--fault);
+  text-shadow: 0 0 6px rgba(255, 79, 79, 0.5);
+}
+
+.hud__keys {
+  right: max(20px, env(safe-area-inset-right, 0px));
+  bottom: max(22px, env(safe-area-inset-bottom, 0px));
+  color: #1a7a3a;
+  text-shadow: none;
+}
+.hud__keys kbd {
+  font: inherit;
+  color: var(--bright);
+  border: 1px solid #1a7a3a;
+  padding: 0 5px;
+  margin-right: 2px;
+}
+
+.hud__stick {
+  display: none;
+  left: max(22px, env(safe-area-inset-left, 0px));
+  bottom: calc(max(18px, env(safe-area-inset-bottom, 0px)) + 52px);
+  width: 112px;
+  height: 112px;
+  border: 1px dashed var(--phosphor);
+  border-radius: 50%;
+  touch-action: none;
+}
+.hud.is-touch .hud__stick {
+  display: block;
+}
+.hud__stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  background: var(--phosphor);
+  box-shadow: 0 0 14px var(--phosphor);
+}
+.hud.is-touch .hud__keys {
+  display: none;
+}
+
+.hud__roll {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 18vh;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(transparent, rgba(140, 255, 174, 0.16) 45%, rgba(230, 255, 238, 0.28) 50%, rgba(140, 255, 174, 0.16) 55%, transparent);
+  mix-blend-mode: screen;
+}
+.hud__roll.is-denied {
+  background: linear-gradient(transparent, rgba(255, 79, 79, 0.18) 45%, rgba(255, 79, 79, 0.3) 50%, rgba(255, 79, 79, 0.18) 55%, transparent);
+}
+
+/* arrival panel */
+.hud__panel {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 42vw);
+  padding: 150px max(28px, env(safe-area-inset-right, 0px)) 28px 30px;
+  overflow: auto;
+  background: rgba(1, 6, 2, 0.94);
+  border-left: 1px solid #1a7a3a;
+  color: var(--bright);
+  text-shadow: none;
+  font-size: 13.5px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  overscroll-behavior: contain;
+}
+.hud__panel header {
+  border-bottom: 1px dashed #1a7a3a;
+  padding-bottom: 10px;
+}
+.hud__panel-hop {
+  color: #3fae63;
+}
+.hud__panel-hop::before {
+  content: '── ';
+}
+.hud__panel h1 {
+  margin: 4px 0 0;
+  font: 400 clamp(38px, 3.6vw, 54px) / 0.95 var(--f-display);
+  color: var(--bright);
+  text-shadow: 0 0 12px rgba(43, 212, 95, 0.6);
+  outline: none;
+}
+.hud__panel h1 .type {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  animation: hud-type calc(var(--n) * 40ms) steps(var(--n)) both;
+  max-width: 100%;
+}
+.hud__panel h1::after {
+  content: '█';
+  animation: hud-blink 1s steps(1) infinite;
+  font-size: 0.8em;
+  margin-left: 6px;
+}
+.hud__panel-body {
+  animation: hud-print 0.6s steps(14) 0.2s both;
+}
+.hud__panel .body {
+  max-width: none;
+}
+.hud__panel footer {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+.hud__panel footer button {
+  color: var(--phosphor);
+}
+.hud__panel footer .primary {
+  background: var(--phosphor);
+  color: var(--tube);
+  padding: 4px 10px;
+  font-weight: 600;
+}
+.hud__panel footer button:hover {
+  color: var(--hot);
+}
+.hud__panel footer .primary:hover {
+  background: var(--hot);
+  color: var(--tube);
+}
+.hud__panel.is-denied {
+  border-left-color: var(--fault);
+}
+.hud__panel.is-denied h1 {
+  color: var(--fault);
+  text-shadow: 0 0 12px rgba(255, 79, 79, 0.6);
+}
+.hud__panel.is-denied header {
+  border-bottom-color: rgba(255, 79, 79, 0.45);
+}
+.hud__panel.is-denied .body--apps .denied {
+  display: none;
+}
+
+/* in-world node labels (drei Html) */
+.node-label-wrap {
+  pointer-events: none;
+}
+.node-label {
+  pointer-events: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font: 400 22px/1 var(--f-display);
+  color: var(--bright);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(43, 212, 95, 0.9);
+}
+.node-label__hop {
+  background: var(--phosphor);
+  color: var(--tube);
+  padding: 0 4px;
+  text-shadow: none;
+}
+.node-label.is-active .node-label__name::after {
+  content: ' <';
+}
+.node-label.is-active .node-label__hop {
+  background: var(--hot);
+}
+.node-label.is-denied {
+  color: var(--fault);
+  text-shadow: 0 0 8px rgba(255, 79, 79, 0.8);
+}
+.node-label.is-denied .node-label__hop {
+  background: var(--fault);
+}
+
+/* the panel covers the right side; move the right-hand HUD out of its way */
+.hud:has(.hud__panel) .hud__top-right {
+  right: calc(min(460px, 42vw) + 20px);
+}
+.hud:has(.hud__panel) .hud__route {
+  max-width: calc(100vw - min(460px, 42vw) - 40px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.hud__panel.is-denied h1 {
+  font-size: clamp(34px, 3vw, 48px);
+}
+.hud:has(.hud__panel) .hud__keys,
+.hud:has(.hud__panel) .hud__hint {
+  display: none;
+}
+@media (max-width: 1180px) {
+  .hud__keys {
+    display: none;
+  }
+  .hud:has(.hud__panel) .hud__stats,
+  .hud:has(.hud__panel) .hud__tools {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .hud {
+    font-size: 11.5px;
+  }
+  .hud__trace {
+    top: max(12px, env(safe-area-inset-top, 0px));
+    left: max(12px, env(safe-area-inset-left, 0px));
+    width: calc(100vw - 150px);
+    padding: 6px 10px;
+  }
+  .hud__cmd {
+    display: none;
+  }
+  .hud__hops li:not(.is-current) {
+    display: none;
+  }
+  .hud__hops:not(:has(.is-current)) li:first-child {
+    display: grid;
+  }
+  .hud__top-right {
+    top: max(12px, env(safe-area-inset-top, 0px));
+    right: max(12px, env(safe-area-inset-right, 0px));
+    gap: 8px;
+  }
+  .hud__stats div {
+    padding: 2px 8px;
+  }
+  .hud__stats b {
+    font-size: 22px;
+  }
+  .hud__stats small {
+    font-size: 13px;
+  }
+  .hud__hint {
+    top: auto;
+    bottom: calc(max(12px, env(safe-area-inset-bottom, 0px)) + 46px);
+    left: auto;
+    right: max(12px, env(safe-area-inset-right, 0px));
+    transform: none;
+    white-space: normal;
+    max-width: 52vw;
+  }
+  .hud__route {
+    left: 0;
+    right: 0;
+    max-width: none;
+    bottom: 0;
+    padding: 10px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .hud__route-label {
+    display: none;
+  }
+  .hud__route button {
+    padding: 8px 6px !important;
+  }
+  .hud__panel {
+    top: auto;
+    left: 0;
+    width: auto;
+    max-height: 58svh;
+    padding: 18px max(16px, env(safe-area-inset-right, 0px)) max(22px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    border-left: 0;
+    border-top: 1px solid #1a7a3a;
+    font-size: 13px;
+  }
+  .hud__panel.is-denied {
+    border-top-color: var(--fault);
+  }
+  .hud__panel h1 {
+    font-size: 42px;
+  }
+  .hud:has(.hud__panel) .hud__top-right {
+    right: max(12px, env(safe-area-inset-right, 0px));
+  }
+  .hud:has(.hud__panel) .hud__stick,
+  .hud:has(.hud__panel) .hud__route,
+  .hud:has(.hud__panel) .hud__stats,
+  .hud:has(.hud__panel) .hud__tools {
+    display: none;
+  }
+}
+
+@keyframes hud-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes hud-type {
+  from {
+    width: 0;
+  }
+  to {
+    width: calc(var(--n) * 1ch);
+  }
+}
+@keyframes hud-print {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud__panel h1 .type,
+  .hud__panel-body,
+  .hud__hint::after,
+  .hud__panel h1::after {
+    animation: none;
+  }
+}
