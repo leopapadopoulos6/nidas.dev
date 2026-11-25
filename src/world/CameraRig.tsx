@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import gsap from 'gsap'
 import * as THREE from 'three'
-import { firewall, nodeById, PACKET_Y, type NodeId } from './layout'
+import { FOCUS, firewall, nodeById, PACKET_Y, type NodeId } from './layout'
 import { packet, useWorld } from './store'
 import { theme } from './theme'
 
@@ -46,12 +46,12 @@ export default function CameraRig() {
       const [nx, nz] = n.pos
       if (sheet) {
         // Node in the upper part of the screen, above the bottom sheet.
-        v.focus.set(nx, 26, nz + 19)
-        v.focusLook.set(nx, 0, nz + 9)
+        v.focus.set(nx + FOCUS.sheet.cam[0], FOCUS.sheet.cam[1], nz + FOCUS.sheet.cam[2])
+        v.focusLook.set(nx + FOCUS.sheet.look[0], FOCUS.sheet.look[1], nz + FOCUS.sheet.look[2])
       } else {
         // Node on the left, panel on the right.
-        v.focus.set(nx - 12, 15, nz + 17)
-        v.focusLook.set(nx + 7, 0.5, nz - 1)
+        v.focus.set(nx + FOCUS.desk.cam[0], FOCUS.desk.cam[1], nz + FOCUS.desk.cam[2])
+        v.focusLook.set(nx + FOCUS.desk.look[0], FOCUS.desk.look[1], nz + FOCUS.desk.look[2])
       }
     }
     const e = blend.current.k

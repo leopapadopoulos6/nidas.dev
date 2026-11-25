@@ -70,6 +70,13 @@ export const firewallApproach = (() => {
 // The packet spawns at hop 0, facing the district.
 export const SPAWN = new THREE.Vector3(nodes[0].pos[0], PACKET_Y, nodes[0].pos[1])
 
+// Arrival framings, relative to the node: desktop keeps the node left of the side panel,
+// phones keep it above the bottom sheet. The city leaves these sightlines clear.
+export const FOCUS = {
+  desk: { cam: [-12, 15, 17] as const, look: [7, 0.5, -1] as const },
+  sheet: { cam: [0, 26, 19] as const, look: [0, 0, 9] as const },
+}
+
 // Play area. Invisible walls keep the packet inside.
 export const BOUNDS = { minX: -96, maxX: 96, minZ: -132, maxZ: 70 }
 
@@ -118,6 +125,9 @@ export function buildCity(seed = 11): Building[] {
       let clear = true
       for (const n of nodes) if (Math.hypot(x - n.pos[0], z - n.pos[1]) < (n.ring || 8) + 6 + r) clear = false
       for (const l of links) if (distToSegment(x, z, l.from, l.to) < 4.5 + r) clear = false
+      for (const n of nodes)
+        for (const f of [FOCUS.desk, FOCUS.sheet])
+          if (distToSegment(x, z, n.pos, [n.pos[0] + f.cam[0], n.pos[1] + f.cam[2]]) < 5 + r) clear = false
       if (Math.hypot(x - SPAWN.x, z - SPAWN.z) < 14) clear = false
       if (!clear) continue
       const back = THREE.MathUtils.clamp((-z - 20) / 100, 0, 1)
