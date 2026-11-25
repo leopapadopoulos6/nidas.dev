@@ -7,7 +7,7 @@ import { theme } from './theme'
 
 const reducedMotion = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** CRT treatment. "low" keeps tone mapping and vignette only. Arrivals trigger a short screen tear. */
+/** CRT treatment. "low" renders without post-processing. Arrivals trigger a short screen tear. */
 export default function Effects() {
   const quality = useWorld((s) => s.quality)
   const arrivals = useWorld((s) => s.arrivals)
@@ -25,14 +25,9 @@ export default function Effects() {
     return () => clearTimeout(t)
   }, [arrivals, denials, calm])
 
-  if (quality === 'low') {
-    return (
-      <EffectComposer multisampling={0} enableNormalPass={false}>
-        <ToneMapping mode={ToneMappingMode.NEUTRAL} />
-        <Vignette offset={0.28} darkness={0.75} />
-      </EffectComposer>
-    )
-  }
+  // Light tier: no post-processing (no extra full-screen GPU buffers). The renderer does tone mapping
+  // and .world::after draws the vignette.
+  if (quality === 'low') return null
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
       <Bloom mipmapBlur intensity={theme.bloom.intensity} luminanceThreshold={theme.bloom.threshold} luminanceSmoothing={theme.bloom.smoothing} radius={theme.bloom.radius} />

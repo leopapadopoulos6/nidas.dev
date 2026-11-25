@@ -604,3 +604,27 @@
   background: var(--phosphor);
   color: var(--tube);
 }
+
+/* vignette for the light effects tier (the CRT tier draws its own in post-processing) */
+.world.is-lite::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+.world__diag {
+  font-size: 11px !important;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* in-world hop labels: a layer the same size as the canvas, kept outside it */
+.world__labels {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}

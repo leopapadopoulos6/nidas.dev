@@ -55,6 +55,9 @@ class SceneBoundary extends Component<{ onError: (e: Error) => void; children: R
   }
 }
 
+// Waits between rebuild attempts within one incident (ms).
+const BACKOFF = [600, 1500, 3000, 6000]
+
 const coarsePointer = () => typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
 
 function hideBoot() {
@@ -77,12 +80,21 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   const { pathname } = useLocation()
   const ready = useWorld((s) => s.ready)
   const panel = useWorld((s) => s.panel)
+  const quality = useWorld((s) => s.quality)
   // The scene can be rebuilt (new canvas, new GPU context) without leaving 3D: bumping `scene` remounts it,
   // and the packet, visited hops, open panel and any autopilot flight carry over.
   const [scene, setScene] = useState(0)
   const [trouble, setTrouble] = useState<null | 'recovering' | 'stuck'>(null)
   const [lowPower, setLowPower] = useState(false)
   const resets = useRef<number[]>([])
+  // Only the canvas currently on screen may report trouble: R3F force-drops the context of a canvas it
+  // tears down, and that must not count as a new failure.
+  const liveCanvas = useRef<HTMLCanvasElement | null>(null)
+  const labelLayer = useRef<HTMLDivElement>(null)
+  const recovering = useRef(false)
+  const started = useRef(performance.now())
+  const shownAt = useRef(-Infinity) // when the page last came back from the background
+  const diag = useRef<{ log: string[]; info: string }>({ log: [], info: '' })
 
   // Fresh session on every mount: spawn at hop 0. Done before the scene renders so the packet starts there.
   useState(() => {
@@ -91,26 +103,78 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     useWorld.setState({ ready: false, current: null, panel: null, visited: ['gateway'], rtt: { gateway: 0.412 }, autopilot: null, moved: false })
   })
 
-  const rebuild = useCallback((why: string) => {
-    const now = Date.now()
-    resets.current = [...resets.current.filter((t) => now - t < 60000), now]
-    console.warn(`[nidas.dev] 3D view reset: ${why}`)
-    // A reset usually means the device ran short of graphics memory: use the light effects at 1x resolution.
-    if (!pinnedFx()) useWorld.getState().setQuality('low')
-    setLowPower(true)
-    if (resets.current.length >= 3) {
-      setTrouble('stuck')
-      return
-    }
-    setTrouble('recovering')
-    setTimeout(() => setScene((n) => n + 1), 500)
+  // A failure within 2 s of mounting a rebuilt scene means the rebuild itself failed (the device can refuse
+  // a new context while it frees memory): retry with growing waits instead of counting a new failure.
+  const tries = useRef(0)
+  const mountedAt = useRef(-Infinity)
+
+  // Take the canvas down right away (no rendering into a dead context), then mount a new one.
+  const remount = useCallback((delay: number) => {
+    setTimeout(() => {
+      recovering.current = false
+      mountedAt.current = performance.now()
+      setScene((n) => n + 1)
+      setTrouble(null)
+    }, delay)
   }, [])
+
+  const giveUp = useCallback(() => {
+    recovering.current = false
+    tries.current = 0
+    setTrouble('stuck')
+  }, [])
+
+  const rebuild = useCallback(
+    (kind: 'lost' | 'error', detail = '') => {
+      if (recovering.current) return // one event, one rebuild
+      recovering.current = true
+      liveCanvas.current = null
+      const now = performance.now()
+      const at = Math.round((performance.now() - started.current) / 1000)
+      // Phones drop GPU contexts of pages in the background, and sometimes report it just after the page
+      // comes back. That is not a failure of the site: rebuild, but don't count it.
+      const background = document.visibilityState === 'hidden' || now - shownAt.current < 3000
+      const failedRebuild = now - mountedAt.current < 2000
+      diag.current.log.push(`${kind === 'lost' ? 'L' : 'E'}${at}s${background ? '(bg)' : ''}`)
+      console.warn(`[nidas.dev] 3D scene reset: ${kind}${detail ? ` (${detail})` : ''}${background ? ' while in background' : ''}`)
+      setTrouble('recovering')
+      if (!pinnedFx()) useWorld.getState().setQuality('low')
+      setLowPower(true)
+
+      let delay = BACKOFF[0]
+      if (background) {
+        tries.current = 0
+      } else if (failedRebuild) {
+        tries.current += 1
+        if (tries.current >= BACKOFF.length) return giveUp()
+        delay = BACKOFF[tries.current]
+      } else {
+        tries.current = 0
+        const t = Date.now()
+        resets.current = [...resets.current.filter((x) => t - x < 60000), t]
+        if (resets.current.length >= 3) return giveUp()
+      }
+      if (document.visibilityState === 'hidden') {
+        const back = () => {
+          if (document.visibilityState === 'hidden') return
+          document.removeEventListener('visibilitychange', back)
+          remount(delay)
+        }
+        document.addEventListener('visibilitychange', back)
+        return
+      }
+      remount(delay)
+    },
+    [remount, giveUp],
+  )
 
   const retry = useCallback(() => {
     resets.current = []
+    tries.current = 0
+    recovering.current = true
     setTrouble('recovering')
-    setScene((n) => n + 1)
-  }, [])
+    remount(BACKOFF[0])
+  }, [remount])
 
   useEffect(() => {
     const el = bootEl()
@@ -123,11 +187,19 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
       if (!useWorld.getState().ready) onFail('timed out')
     }, 30000)
     useWorld.getState().setTouch(coarsePointer())
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') shownAt.current = performance.now()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    // Phones start on the light effects (no post-processing buffers): less graphics memory, fewer drops.
+    if (coarsePointer()) useWorld.getState().setQuality('low')
     // ?fx=crt or ?fx=lite pins the effects tier (otherwise it drops to lite when frames are slow).
     if (PINNED_FX === 'lite') useWorld.getState().setQuality('low')
     if (PINNED_FX === 'crt') useWorld.getState().setQuality('high')
     return () => {
       clearTimeout(t)
+      document.removeEventListener('visibilitychange', onVisible)
+      liveCanvas.current = null // leaving 3D on purpose: ignore the teardown of the last canvas
       const b = bootEl()
       if (b) b.style.display = 'none'
     }
@@ -198,38 +270,41 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   const pick = useCallback((id: NodeId) => useWorld.getState().goTo(id), [])
 
   // Phones get a lower render resolution (graphics memory is the usual reason a phone drops the 3D view).
-  const dpr: [number, number] = lowPower ? [1, 1] : coarsePointer() ? [1, 1.5] : [1, 1.75]
+  const dpr: [number, number] = lowPower ? [1, 1] : coarsePointer() ? [1, 1.25] : [1, 1.75]
 
   return (
-    <div className="world">
-      {trouble !== 'stuck' && (
-        <SceneBoundary key={scene} onError={(e) => rebuild(e.message)}>
+    <div className={`world ${quality === 'low' ? 'is-lite' : ''}`}>
+      {trouble === null && (
+        <SceneBoundary key={scene} onError={(e) => rebuild('error', e.message)}>
           <Canvas
             className="world__canvas"
             dpr={dpr}
             gl={{ antialias: false, powerPreference: 'high-performance', stencil: false }}
             camera={{ fov: theme.camera.fov, near: 0.1, far: 420, position: [packet.pos.x, 14, packet.pos.z + 14] }}
             onCreated={({ scene: s, gl }) => {
+              const canvas = gl.domElement
+              liveCanvas.current = canvas
               // The device dropped the GPU context (memory pressure, app switch): rebuild in place, stay in 3D.
-              gl.domElement.addEventListener(
-                'webglcontextlost',
-                (e) => {
-                  e.preventDefault()
-                  rebuild('graphics context lost')
-                },
-                { once: true },
-              )
+              canvas.addEventListener('webglcontextlost', (e) => {
+                e.preventDefault()
+                if (liveCanvas.current === canvas) rebuild('lost')
+              })
+              gl.toneMapping = THREE.NeutralToneMapping
+              const ctx = gl.getContext()
+              const dbg = ctx.getExtension('WEBGL_debug_renderer_info')
+              const gpu = String(dbg ? ctx.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ctx.getParameter(ctx.RENDERER)).slice(0, 40)
+              diag.current.info = `${canvas.width}x${canvas.height}@${gl.getPixelRatio()} · ${gpu}`
+              mountedAt.current = performance.now()
               s.background = new THREE.Color(theme.background)
               s.fog = new THREE.FogExp2(theme.background, theme.fogDensity)
               bootLine(' 3  spawning packet at hop 0')
-              setTrouble((t) => (t === 'recovering' ? null : t))
             }}
             aria-label="3D network district. Use the autopilot buttons or the text version to navigate."
           >
             <PerformanceMonitor onDecline={() => !pinnedFx() && useWorld.getState().setQuality('low')} flipflops={2}>
               <Suspense fallback={null}>
                 <Physics gravity={[0, 0, 0]} timeStep={1 / 60}>
-                  <District onPick={pick} onFirewall={hitFirewall} />
+                  <District onPick={pick} onFirewall={hitFirewall} labels={labelLayer} />
                   <Packet onArrive={arrive} onDeny={deny} />
                   <Ready />
                 </Physics>
@@ -240,6 +315,7 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
           </Canvas>
         </SceneBoundary>
       )}
+      <div ref={labelLayer} className="world__labels" aria-hidden="true" />
       <Hud onExit={onExit} />
       {trouble === 'recovering' && (
         <p className="world__notice" role="status">
@@ -252,6 +328,9 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
             &gt; the 3D view keeps resetting on this device
           </p>
           <p>Your browser keeps dropping the graphics context, usually because it is short on memory.</p>
+          <p className="world__diag">
+            diag: {diag.current.log.join(' ')} · fx {useWorld.getState().quality} · {diag.current.info}
+          </p>
           <div className="world__stuck-actions">
             <button type="button" className="primary" onClick={retry}>
               restart 3D

@@ -338,7 +338,7 @@ function Beacon({ color, height = 46 }: { color: THREE.Color; height?: number })
 
 const labelY: Record<HopNode['kind'], number> = { gateway: 3, router: 5.5, switch: 6.5, ap: 12.5, firewall: 9 }
 
-function NodeSite({ node, active, onPick }: { node: HopNode; active: boolean; onPick: (id: NodeId) => void }) {
+function NodeSite({ node, active, onPick, labels }: { node: HopNode; active: boolean; onPick: (id: NodeId) => void; labels: React.RefObject<HTMLDivElement | null> }) {
   const ringCol = useMemo(() => c(active ? theme.active : theme.ring, active ? 2.6 : 1.8), [active])
   const beam = useMemo(() => c(node.kind === 'firewall' ? '#ff4f4f' : active ? theme.active : theme.ring, active ? 0.9 : 1.2), [active, node.kind])
   const label = node.kind === 'gateway' ? 'you' : node.kind === 'firewall' ? '/apps' : sectionById(node.id)?.label
@@ -375,7 +375,8 @@ function NodeSite({ node, active, onPick }: { node: HopNode; active: boolean; on
         {body}
       </group>
       {node.kind !== 'gateway' && <Beacon color={beam} />}
-      <Html position={[0, labelY[node.kind], 0]} center zIndexRange={[10, 0]} className="node-label-wrap">
+      {/* Labels live in a layer outside the canvas, so rebuilding the scene never pulls DOM out from under them. */}
+      <Html position={[0, labelY[node.kind], 0]} center zIndexRange={[10, 0]} className="node-label-wrap" portal={labels as React.RefObject<HTMLElement>}>
         <button
           type="button"
           className={`node-label ${active ? 'is-active' : ''} ${node.kind === 'firewall' ? 'is-denied' : ''}`}
@@ -412,7 +413,7 @@ function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
   )
 }
 
-export default function District({ onPick, onFirewall }: { onPick: (id: NodeId) => void; onFirewall: () => void }) {
+export default function District({ onPick, onFirewall, labels }: { onPick: (id: NodeId) => void; onFirewall: () => void; labels: React.RefObject<HTMLDivElement | null> }) {
   const current = useWorld((s) => s.current)
   const panel = useWorld((s) => s.panel)
   return (
@@ -421,7 +422,7 @@ export default function District({ onPick, onFirewall }: { onPick: (id: NodeId) 
       <City />
       <Links />
       {nodes.map((n) => (
-        <NodeSite key={n.id} node={n} active={n.id === panel || (n.id === current && n.kind !== 'gateway')} onPick={onPick} />
+        <NodeSite key={n.id} node={n} active={n.id === panel || (n.id === current && n.kind !== 'gateway')} onPick={onPick} labels={labels} />
       ))}
       <DeviceColliders onFirewall={onFirewall} />
     </>
