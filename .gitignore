@@ -1,9 +1,2 @@
 # Local Netlify folder
 .netlify
-
-# v2
-node_modules
-dist
-dist-ssr
-*.local
-.DS_Store

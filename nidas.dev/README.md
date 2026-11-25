@@ -1,6 +1,3 @@
-> **Legacy (v1).** This folder is the 2024 site, preserved unchanged on the `archive` branch.
-> Since v2, www.nidas.dev is built from the repository root (see `/netlify.toml`); nothing here is deployed.
-
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
