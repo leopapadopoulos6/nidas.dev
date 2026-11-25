@@ -74,7 +74,7 @@ export default function Site({ force2d = false }: { force2d?: boolean }) {
     navigate(id ? `/${id}` : '/')
   }, [id, navigate])
 
-  const fail = useCallback((e: Error | string) => to2d(`The 3D view could not start (${typeof e === 'string' ? e : e.message}). This is the text version.`), [to2d])
+  const fail = useCallback((e: Error | string) => to2d(`The 3D view stopped (${typeof e === 'string' ? e : e.message}). This is the text version.`), [to2d])
 
   return (
     <>

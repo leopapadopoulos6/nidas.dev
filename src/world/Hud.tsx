@@ -160,6 +160,7 @@ function Panel() {
   const rtt = useWorld((s) => s.rtt)
   const closePanel = useWorld((s) => s.closePanel)
   const goTo = useWorld((s) => s.goTo)
+  const touch = useWorld((s) => s.touch)
   const heading = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
     if (panel) heading.current?.focus({ preventScroll: true })
@@ -189,7 +190,7 @@ function Panel() {
           {panel === 'apps' ? 'back to hop 02 →' : `next hop: ${sectionById(next)!.label} →`}
         </button>
         <button type="button" onClick={closePanel}>
-          [esc] close
+          {touch ? 'close & steer' : '[esc] close'}
         </button>
       </footer>
     </article>

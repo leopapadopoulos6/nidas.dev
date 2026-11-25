@@ -134,7 +134,10 @@ export default function Packet({ onArrive, onDeny }: Props) {
   const autopilot = useWorld((s) => s.autopilot)
   const respawns = useWorld((s) => s.respawns)
   const route = useRef<{ curve: THREE.CatmullRomCurve3; s: { t: number }; target: NodeId; tween: gsap.core.Tween } | null>(null)
-  const prev = useMemo(() => new THREE.Vector3().copy(SPAWN), [])
+  // Where this body starts: hop 0 on a fresh session, the packet's last spot after a scene rebuild.
+  const start = useMemo(() => packet.pos.clone(), [])
+  const prev = useMemo(() => start.clone(), [start])
+  const respawnsAtMount = useRef(respawns)
   const tmp = useMemo(() => new THREE.Vector3(), [])
 
   const toDynamic = () => {
@@ -232,7 +235,8 @@ export default function Packet({ onArrive, onDeny }: Props) {
 
   // Respawn at hop 0.
   useEffect(() => {
-    if (!respawns) return
+    if (respawns === respawnsAtMount.current) return
+    respawnsAtMount.current = respawns
     const b = body.current
     if (!b) return
     route.current?.tween.kill()
@@ -304,7 +308,7 @@ export default function Packet({ onArrive, onDeny }: Props) {
       <RigidBody
         ref={body}
         colliders={false}
-        position={SPAWN}
+        position={start}
         enabledTranslations={[true, false, true]}
         enabledRotations={[false, false, false]}
         linearDamping={0.5}

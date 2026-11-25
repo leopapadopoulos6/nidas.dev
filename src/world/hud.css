@@ -548,3 +548,59 @@
     animation: none;
   }
 }
+
+/* scene rebuild notice and the "keeps resetting" choice (stay in 3D unless the visitor picks text) */
+.world__notice {
+  position: absolute;
+  z-index: 30;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 8px 14px;
+  font: 13px/1.5 var(--f-mono);
+  color: var(--bright);
+  background: rgba(1, 8, 3, 0.9);
+  border: 1px solid var(--dim);
+  white-space: nowrap;
+}
+.world__stuck {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px));
+  background: rgba(1, 5, 2, 0.94);
+  font: 14px/1.6 var(--f-mono);
+  color: var(--bright);
+  text-align: left;
+  max-width: 100%;
+}
+.world__stuck p {
+  margin: 0;
+  max-width: 46ch;
+}
+.world__stuck-title {
+  font: 400 30px/1.1 var(--f-display);
+  text-shadow: 0 0 10px rgba(43, 212, 95, 0.55);
+}
+.world__stuck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+}
+.world__stuck button {
+  font: 600 14px/1 var(--f-mono);
+  padding: 10px 14px;
+  border: 1px solid var(--phosphor);
+  background: none;
+  color: var(--phosphor);
+  cursor: pointer;
+}
+.world__stuck button.primary {
+  background: var(--phosphor);
+  color: var(--tube);
+}

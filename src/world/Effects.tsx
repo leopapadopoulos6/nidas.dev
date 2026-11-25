@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Bloom, ChromaticAberration, EffectComposer, Glitch, Noise, Scanline, ToneMapping, Vignette } from '@react-three/postprocessing'
 import { BlendFunction, GlitchMode, ToneMappingMode } from 'postprocessing'
 import * as THREE from 'three'
@@ -16,8 +16,10 @@ export default function Effects() {
   const calm = useMemo(reducedMotion, [])
   const chroma = useMemo(() => new THREE.Vector2(0.0012, 0.0007), [])
 
+  const seen = useRef(arrivals + denials)
   useEffect(() => {
-    if (calm || arrivals + denials === 0) return
+    if (calm || arrivals + denials === seen.current) return
+    seen.current = arrivals + denials
     setTear(true)
     const t = setTimeout(() => setTear(false), 260)
     return () => clearTimeout(t)

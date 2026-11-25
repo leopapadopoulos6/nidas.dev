@@ -13,8 +13,8 @@ import { theme } from './theme'
 export default function CameraRig() {
   const { camera, size } = useThree()
   const panel = useWorld((s) => s.panel)
-  const blend = useRef({ k: 0 })
-  const focusNode = useRef<NodeId | null>(null)
+  const blend = useRef({ k: useWorld.getState().panel ? 1 : 0 })
+  const focusNode = useRef<NodeId | null>(useWorld.getState().panel)
   const v = useMemo(() => ({ follow: new THREE.Vector3(), followLook: new THREE.Vector3(), focus: new THREE.Vector3(), focusLook: new THREE.Vector3(), pos: new THREE.Vector3(), look: new THREE.Vector3() }), [])
   const smoothed = useRef<{ pos: THREE.Vector3; look: THREE.Vector3 } | null>(null)
 
