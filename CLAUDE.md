@@ -42,4 +42,6 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 
 ## Git
 
-Work on `concept/packet` only. Never push to `main`, merge, or create or delete branches or tags. `main` changes only when Leo merges.
+- `concept/packet`: the working branch (draft PR into `main`, used for previews). Work here unless Leo says otherwise.
+- `feature/projects`: the shelved projects section, kept as one commit ("Restore the projects section") on top of `concept/packet`. To bring projects back, rebase it onto the current `concept/packet` and merge it, when Leo asks.
+- Never push to `main`, merge, or create or delete branches or tags unless Leo asks. `main` changes only when Leo merges.
