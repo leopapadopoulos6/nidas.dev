@@ -15,9 +15,9 @@ export interface SectionMeta {
 const site = 'nidas.dev'
 
 export const sections: SectionMeta[] = [
-  { id: 'about', hop: 1, label: 'about', host: 'core-rtr.about', title: `About · Leo Papadopoulos · ${site}`, description: 'Leo Papadopoulos is a network engineer in New York working on client networks, wireless and firewalls, now heading toward security.' },
-  { id: 'experience', hop: 2, label: 'experience', host: 'dist-sw.experience', title: `Experience · Leo Papadopoulos · ${site}`, description: 'Network Engineer at Promenet, Inc. in New York: VLANs, HA/failover, firewall migrations, wireless surveys, structured cabling and SaaS administration.' },
-  { id: 'contact', hop: 3, label: 'contact', host: 'ap.contact', title: `Contact · Leo Papadopoulos · ${site}`, description: 'Contact Leo Papadopoulos, network engineer in New York: email and GitHub.' },
+  { id: 'about', hop: 1, label: 'about', host: 'core-rtr.about', title: `About · Leonidas Papadopoulos · ${site}`, description: 'Leonidas Papadopoulos is a network engineer in New York working on client networks, wireless and firewalls, now heading toward security.' },
+  { id: 'experience', hop: 2, label: 'experience', host: 'dist-sw.experience', title: `Experience · Leonidas Papadopoulos · ${site}`, description: 'Network Engineer at Promenet, Inc. in New York: VLANs, HA/failover, firewall migrations, wireless surveys, structured cabling and SaaS administration.' },
+  { id: 'contact', hop: 3, label: 'contact', host: 'ap.contact', title: `Contact · Leonidas Papadopoulos · ${site}`, description: 'Contact Leonidas Papadopoulos, network engineer in New York: email and GitHub.' },
   { id: 'apps', hop: 4, label: '/apps', host: 'fw.private', title: `ACCESS DENIED · ${site}`, description: 'Private dashboards live behind this firewall. Access denied.' },
 ]
 
@@ -26,6 +26,6 @@ export const sectionById = (id: string | undefined) => sections.find((s) => s.id
 export const isSectionId = (id: string | undefined): id is SectionId => !!sectionById(id)
 
 export const home = {
-  title: 'Leo Papadopoulos · Network Engineer · nidas.dev',
-  description: 'Leo Papadopoulos, network engineer in New York. Tour the site as a traceroute through a small network district, or read the text version.',
+  title: 'Leonidas Papadopoulos · Network Engineer · nidas.dev',
+  description: 'Leonidas Papadopoulos, network engineer in New York. Tour the site as a traceroute through a small network district, or read the text version.',
 }

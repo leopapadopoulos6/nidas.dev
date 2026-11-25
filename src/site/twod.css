@@ -23,10 +23,14 @@
 }
 .tw__name {
   margin: 0;
-  font: 400 clamp(56px, 11vw, 104px) / 0.9 var(--f-display);
+  /* "Papadopoulos" is ~4.9em wide and the full name ~8.6em in VT323: the size keeps the
+     surname inside the side gutters on any phone and the full name on one line on desktop. */
+  font: 400 clamp(40px, calc((100vw - 32px) / 5.5), 96px) / 0.9 var(--f-display);
   color: var(--bright);
   text-shadow: 0 0 18px rgba(43, 212, 95, 0.55);
   letter-spacing: 0.01em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 .tw__role {
   margin: 10px 0 0;

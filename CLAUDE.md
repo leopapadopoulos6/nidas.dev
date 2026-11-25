@@ -1,6 +1,6 @@
 # nidas.dev v2 · "Packet"
 
-Leo Papadopoulos's portfolio. Visitors steer a data packet through a small network district; each node is a section and the HUD reads like `traceroute`. Visual direction: **B · Phosphor** (single green hue on a dark CRT; red only for ACCESS DENIED). A complete 2D text version ships with every route.
+Leonidas Papadopoulos's portfolio. Visitors steer a data packet through a small network district; each node is a section and the HUD reads like `traceroute`. Visual direction: **B · Phosphor** (single green hue on a dark CRT; red only for ACCESS DENIED). A complete 2D text version ships with every route.
 
 ## Stack
 

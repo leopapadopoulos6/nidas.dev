@@ -10,6 +10,8 @@ const { render, routes } = await import(pathToFileURL(ssrEntry).href)
 const template = fs.readFileSync(path.join(dist, 'index.html'), 'utf8')
 const origin = 'https://www.nidas.dev' // the apex redirects here
 
+// Netlify serves each prerendered section at /section/ (pretty URLs), so canonical links use that form.
+const canon = (u) => (u === '/' || u.endsWith('/') ? u : `${u}/`)
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
 // Preload the two fonts the first screen uses (latin subsets only).
@@ -29,10 +31,11 @@ function page({ url, title, description, body, noindex = false }) {
     .replace(/(<meta name="description" content=")[^"]*"/, `$1${esc(description)}"`)
     .replace(/(<meta property="og:title" content=")[^"]*"/, `$1${esc(title)}"`)
     .replace(/(<meta property="og:description" content=")[^"]*"/, `$1${esc(description)}"`)
-    .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${origin}${url}"`)
-    .replace(/(<link rel="canonical" href=")[^"]*"/, `$1${origin}${url}"`)
+    .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${origin}${canon(url)}"`)
+    .replace(/(<link rel="canonical" href=")[^"]*"/, `$1${origin}${canon(url)}"`)
     .replace('<div id="root"></div>', body ? `<div id="root" data-route="${url}">${body}</div>` : '<div id="root"></div>')
   if (noindex) html = html.replace('<meta charset="UTF-8" />', '<meta charset="UTF-8" />\n    <meta name="robots" content="noindex" />')
+  if (noindex) html = html.replace(/\s*<link rel="canonical"[^>]*>/, '')
   return html
 }
 
@@ -58,7 +61,7 @@ for (const r of routes) {
 const publicUrls = routes.map((r) => r.url).filter((u) => u !== '/2d' && u !== '/apps')
 fs.writeFileSync(
   path.join(dist, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${publicUrls.map((u) => `  <url><loc>${origin}${u}</loc></url>`).join('\n')}\n</urlset>\n`,
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${publicUrls.map((u) => `  <url><loc>${origin}${canon(u)}</loc></url>`).join('\n')}\n</urlset>\n`,
 )
 fs.writeFileSync(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`)
 console.log(`wrote sitemap.xml (${publicUrls.length} urls) and robots.txt`)

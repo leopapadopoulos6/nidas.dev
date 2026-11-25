@@ -8,7 +8,7 @@ export const experience: Job[] = [
     location: 'New York, NY',
     start: '2024',
     end: null,
-    summary: 'Client site engineering for a managed IT provider: design, build and support of client networks and SaaS environments.',
+    summary: 'Client site engineering for a managed services provider (MSP): design, build and support of client networks and SaaS environments.',
     highlights: [
       'VLAN design and trunking across client sites',
       'High-availability and failover configurations',
@@ -27,9 +27,9 @@ export const experience: Job[] = [
     location: 'Farmingdale, NY',
     start: '2019',
     end: '2022',
-    summary: 'In-house IT: ran the company’s infrastructure and security, from network servers to staff computers and phones.',
+    summary: 'Responsible for the company’s IT infrastructure and security.',
     highlights: [
-      'Managed network servers and systems',
+      'Managed the infrastructure end to end: network switches, firewall, router, servers and endpoints',
       'Moved the company from in-office to a virtual work environment during the pandemic',
       'Prepared new computers and mobile devices to standard software and security policies',
       'Diagnosed hardware and network issues with proactive troubleshooting',
