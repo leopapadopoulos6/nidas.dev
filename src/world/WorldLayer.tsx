@@ -24,7 +24,7 @@ export interface WorldLayerProps {
   onFail: (e: Error | string) => void
 }
 
-const HOTKEYS: Record<string, NodeId> = { Digit1: 'about', Digit2: 'experience', Digit3: 'projects', Digit4: 'contact', Digit5: 'apps' }
+const HOTKEYS: Record<string, NodeId> = { Digit1: 'about', Digit2: 'experience', Digit3: 'contact', Digit4: 'apps' }
 
 // Read once: in-world navigation drops the query string.
 const PINNED_FX = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('fx')

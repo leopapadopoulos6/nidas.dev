@@ -118,31 +118,6 @@
 .skills dd {
   margin: 0;
 }
-.project {
-  display: grid;
-  gap: 6px;
-}
-.project + .project {
-  border-top: 1px dashed var(--dim);
-  padding-top: 14px;
-}
-.project h3 {
-  margin: 0;
-}
-.project__status {
-  font: 0.6em/1 var(--f-mono);
-  color: var(--muted);
-  text-shadow: none;
-  vertical-align: 0.3em;
-}
-.project__meta {
-  color: var(--muted);
-}
-.project__links {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
 .denied {
   font: 400 3em/1 var(--f-display);
   color: var(--fault);

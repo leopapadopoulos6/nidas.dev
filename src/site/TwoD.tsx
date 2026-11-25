@@ -11,7 +11,7 @@ interface Props {
 }
 
 // Fixed, made-up latencies: they only decorate the traceroute-style index.
-const rtt: Record<SectionId, string> = { about: '3.118 ms', experience: '7.904 ms', projects: '12.551 ms', contact: '15.207 ms', apps: '* * *' }
+const rtt: Record<SectionId, string> = { about: '3.118 ms', experience: '7.904 ms', contact: '12.551 ms', apps: '* * *' }
 
 /** The complete text version of the site. Prerendered into every route's HTML. */
 export default function TwoD({ active, hidden, notice, onEnter3d }: Props) {

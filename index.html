@@ -30,7 +30,7 @@
         var q = location.search, p = location.pathname, pref = null
         try { pref = localStorage.getItem('packet:mode') } catch (e) {}
         var mm = function (s) { return window.matchMedia && matchMedia(s).matches }
-        var site = /^\/(about|experience|projects|contact|apps)?\/?$/.test(p)
+        var site = /^\/(about|experience|contact|apps)?\/?$/.test(p)
         var nav = navigator, conn = nav.connection || {}
         var bot = /bot|crawl|spider|slurp|preview|lighthouse|headless/i.test(nav.userAgent) || nav.webdriver
         if (!site) why = 'route'

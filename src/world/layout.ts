@@ -3,7 +3,7 @@ import type { SectionId } from '../site/sections'
 
 // One compact district. Each node is a hop; the packet reaches it by entering its ring.
 export type NodeId = 'gateway' | SectionId
-export type NodeKind = 'gateway' | 'router' | 'switch' | 'server' | 'ap' | 'firewall'
+export type NodeKind = 'gateway' | 'router' | 'switch' | 'ap' | 'firewall'
 
 export interface HopNode {
   id: NodeId
@@ -19,9 +19,8 @@ export const nodes: HopNode[] = [
   { id: 'gateway', hop: 0, kind: 'gateway', pos: [0, 44], ring: 5 },
   { id: 'about', hop: 1, kind: 'router', pos: [6, 4], ring: 8 },
   { id: 'experience', hop: 2, kind: 'switch', pos: [36, -22], ring: 8 },
-  { id: 'projects', hop: 3, kind: 'server', pos: [14, -70], ring: 8 },
-  { id: 'contact', hop: 4, kind: 'ap', pos: [-28, -44], ring: 7 },
-  { id: 'apps', hop: 5, kind: 'firewall', pos: [64, -50], ring: 0 },
+  { id: 'contact', hop: 3, kind: 'ap', pos: [-28, -44], ring: 7 },
+  { id: 'apps', hop: 4, kind: 'firewall', pos: [64, -50], ring: 0 },
 ]
 export const nodeById = (id: NodeId) => nodes.find((n) => n.id === id)!
 export const plazas = nodes.filter((n) => n.ring > 0)
@@ -32,8 +31,7 @@ export const FIREWALL_ROT = -0.9
 export const edges: [NodeId, NodeId][] = [
   ['gateway', 'about'],
   ['about', 'experience'],
-  ['experience', 'projects'],
-  ['projects', 'contact'],
+  ['experience', 'contact'],
   ['contact', 'gateway'],
   ['experience', 'apps'],
 ]

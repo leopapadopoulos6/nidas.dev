@@ -17,7 +17,7 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 
 ## Layout
 
-- `src/content/`: **all copy** (profile, experience, education, skills, projects, links). Components never hardcode copy. Anything Leo still has to confirm contains the string `TODO`; `isTodo()` and the `<T>` helper render it visibly marked.
+- `src/content/`: **all copy** (profile, experience, education, skills, links). Components never hardcode copy. Anything Leo still has to confirm contains the string `TODO`; `isTodo()` and the `<T>` helper render it visibly marked.
 - `src/site/`: the 2D site and shared pieces. `sections.ts` is the single registry of sections/hops (ids, hop numbers, hosts, titles, descriptions). `bodies/` renders each section; the 2D page and the 3D panels both use them. `Site.tsx` always renders the 2D page (that is what the prerendered HTML contains) and lazy-loads `world/WorldLayer` on top when the boot script chose 3D.
 - `src/world/`: the lazy 3D chunk. `layout.ts` (nodes, links, city, autopilot route planning), `District.tsx` (visuals + static colliders), `Packet.tsx` (rapier body, controls, autopilot, hop detection, trail), `CameraRig.tsx`, `Effects.tsx`, `Hud.tsx` + `hud.css`, `store.ts` (zustand), `input.ts`.
 - `index.html`: inline boot script (decides 2D vs 3D before first paint) and the static terminal loader (`#boot`).
@@ -26,7 +26,7 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 
 ## Conventions
 
-- One route (`/:section?`) serves `/`, `/2d` and every section, so navigation never remounts the world. The open panel *is* the URL: `/about`, `/experience`, `/projects`, `/contact`, `/apps`.
+- One route (`/:section?`) serves `/`, `/2d` and every section, so navigation never remounts the world. The open panel *is* the URL: `/about`, `/experience`, `/contact`, `/apps`.
 - The 2D page must always contain every piece of content. If you add content, add it to `src/content` and render it in a body component; never 3D-only.
 - Colors come from the Phosphor tokens (`src/site/phosphor.css`, `src/world/theme.ts`). `--fault` red means ACCESS DENIED and nothing else.
 - Build 3D in code (geometry, shaders, postprocessing). Third-party assets and fonts must be CC0, MIT or OFL and logged in `CREDITS.md`. Never copy code, models, textures or distinctive designs from other portfolios.
