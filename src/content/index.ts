@@ -4,6 +4,7 @@ export { experience } from './experience'
 export { education, certifications } from './education'
 export { skills } from './skills'
 export { links } from './links'
+export { apps } from './apps'
 
 /** True when a content value still needs Leo's input. */
 export const isTodo = (v: string | null | undefined) => !v || v.includes('TODO')

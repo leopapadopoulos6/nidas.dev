@@ -13,18 +13,21 @@ import { theme } from './theme'
 export default function CameraRig() {
   const { camera, size } = useThree()
   const panel = useWorld((s) => s.panel)
-  const blend = useRef({ k: useWorld.getState().panel ? 1 : 0 })
+  const expanded = useWorld((s) => s.expanded)
+  // Phones keep the chase cam while the peek card is up (you can keep driving); frame the node only while reading.
+  const focus = panel && (size.width > 720 || expanded) ? panel : null
+  const blend = useRef({ k: 0 })
   const focusNode = useRef<NodeId | null>(useWorld.getState().panel)
   const v = useMemo(() => ({ follow: new THREE.Vector3(), followLook: new THREE.Vector3(), focus: new THREE.Vector3(), focusLook: new THREE.Vector3(), pos: new THREE.Vector3(), look: new THREE.Vector3() }), [])
   const smoothed = useRef<{ pos: THREE.Vector3; look: THREE.Vector3 } | null>(null)
 
   useEffect(() => {
-    if (panel) focusNode.current = panel
-    const tw = gsap.to(blend.current, { k: panel ? 1 : 0, duration: panel ? 0.95 : 0.7, ease: 'power2.inOut' })
+    if (focus) focusNode.current = focus
+    const tw = gsap.to(blend.current, { k: focus ? 1 : 0, duration: focus ? 0.95 : 0.7, ease: 'power2.inOut' })
     return () => {
       tw.kill()
     }
-  }, [panel])
+  }, [focus])
 
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)

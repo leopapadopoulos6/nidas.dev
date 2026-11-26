@@ -1,10 +1,24 @@
-import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type TouchEvent as RTouchEvent } from 'react'
 import gsap from 'gsap'
 import { bodies } from '../site/bodies'
 import { sectionById, sections, type SectionId } from '../site/sections'
+import { teaser } from '../site/teaser'
 import { input } from './input'
 import { nodeById, nodes, type NodeId } from './layout'
 import { packet, rttFromDistance, useWorld } from './store'
+
+const NARROW = '(max-width: 720px)'
+/** True on phone-width layouts, where the panel is a bottom sheet and arrivals show a peek card first. */
+export function useNarrow() {
+  const [narrow, setNarrow] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(NARROW).matches)
+  useEffect(() => {
+    const mq = matchMedia(NARROW)
+    const on = () => setNarrow(mq.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+  return narrow
+}
 
 const fmt = (ms?: number) => (ms === undefined ? '…' : `${ms.toFixed(3)} ms`)
 const hopHost = (id: NodeId) => (id === 'gateway' ? 'gw.visitor' : sectionById(id)!.host)
@@ -111,6 +125,7 @@ function Stick() {
   const pad = useRef<HTMLDivElement>(null)
   const knob = useRef<HTMLDivElement>(null)
   const id = useRef<number | null>(null)
+  const expanded = useWorld((s) => s.expanded)
   const move = (e: RPointerEvent) => {
     const el = pad.current
     if (!el || id.current !== e.pointerId) return
@@ -127,12 +142,41 @@ function Stick() {
     input.stick.y = -y / max
     if (knob.current) knob.current.style.transform = `translate(${x}px, ${y}px)`
   }
-  const end = () => {
+  const end = useCallback(() => {
     id.current = null
     input.stick.active = false
     input.stick.x = input.stick.y = 0
     if (knob.current) knob.current.style.transform = ''
-  }
+  }, [])
+  // The stick can vanish under a finger (the reading sheet covers it) or the page can lose focus mid-drag.
+  // Listen on the window too, so the packet never keeps driving on a stale stick.
+  useEffect(() => {
+    const up = (e: PointerEvent) => {
+      if (id.current === e.pointerId) end()
+    }
+    const touchEnd = (e: TouchEvent) => {
+      if (id.current !== null && e.touches.length === 0) end()
+    }
+    const away = () => end()
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', up)
+    window.addEventListener('touchend', touchEnd)
+    window.addEventListener('touchcancel', touchEnd)
+    window.addEventListener('blur', away)
+    document.addEventListener('visibilitychange', away)
+    return () => {
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', up)
+      window.removeEventListener('touchend', touchEnd)
+      window.removeEventListener('touchcancel', touchEnd)
+      window.removeEventListener('blur', away)
+      document.removeEventListener('visibilitychange', away)
+      end()
+    }
+  }, [end])
+  useEffect(() => {
+    if (expanded) end()
+  }, [expanded, end])
   return (
     <div
       ref={pad}
@@ -149,9 +193,41 @@ function Stick() {
       onPointerMove={move}
       onPointerUp={end}
       onPointerCancel={end}
+      onLostPointerCapture={end}
     >
       <div ref={knob} className="hud__stick-knob" />
     </div>
+  )
+}
+
+const ORDER: SectionId[] = ['about', 'experience', 'contact']
+const nextOf = (panel: SectionId): SectionId => (panel === 'apps' ? 'experience' : ORDER[(ORDER.indexOf(panel) + 1) % ORDER.length])
+const nextLabel = (panel: SectionId) => (panel === 'apps' ? 'back to hop 02 →' : `next hop: ${sectionById(nextOf(panel))!.label} →`)
+
+/** Phone arrival: a small card that leaves the joystick and hop buttons usable. Drive away to dismiss. */
+function Peek({ panel }: { panel: SectionId }) {
+  const rtt = useWorld((s) => s.rtt)
+  const goTo = useWorld((s) => s.goTo)
+  const expand = useWorld((s) => s.expand)
+  const meta = sectionById(panel)!
+  const title = panel === 'apps' ? 'ACCESS DENIED' : meta.label
+  return (
+    <aside key={panel} className={`hud__peek ${panel === 'apps' ? 'is-denied' : ''}`} aria-label={`Arrived: ${title}`}>
+      <p className="hud__peek-hop">
+        hop {String(meta.hop).padStart(2, '0')} · {meta.host} · {panel === 'apps' ? 'deny' : fmt(rtt[panel])}
+      </p>
+      <p className="hud__peek-title">{`> ${title}`}</p>
+      <p className="hud__peek-line">{teaser(panel)}</p>
+      <div className="hud__peek-actions">
+        <button type="button" className="primary" onClick={expand}>
+          read
+        </button>
+        <button type="button" onClick={() => goTo(nextOf(panel))}>
+          {nextLabel(panel)}
+        </button>
+      </div>
+      <p className="hud__peek-tip">or keep driving · the card closes when you leave the ring</p>
+    </aside>
   )
 }
 
@@ -159,21 +235,36 @@ function Panel() {
   const panel = useWorld((s) => s.panel)
   const rtt = useWorld((s) => s.rtt)
   const closePanel = useWorld((s) => s.closePanel)
+  const collapse = useWorld((s) => s.collapse)
+  const expanded = useWorld((s) => s.expanded)
   const goTo = useWorld((s) => s.goTo)
   const touch = useWorld((s) => s.touch)
+  const narrow = useNarrow()
   const heading = useRef<HTMLHeadingElement>(null)
+  const swipe = useRef<{ y: number; top: boolean } | null>(null)
+  const reading = !!panel && (!narrow || expanded)
   useEffect(() => {
-    if (panel) heading.current?.focus({ preventScroll: true })
-  }, [panel])
+    if (reading) heading.current?.focus({ preventScroll: true })
+  }, [reading, panel])
   if (!panel) return null
+  if (!reading) return <Peek panel={panel} />
   const meta = sectionById(panel)!
   const Body = bodies[panel]
-  const order: SectionId[] = ['about', 'experience', 'contact']
-  const i = order.indexOf(panel)
-  const next = panel === 'apps' ? 'experience' : order[(i + 1) % order.length]
   const title = panel === 'apps' ? 'ACCESS DENIED' : meta.label
+  // Phones: swipe down on the sheet (from the top of its scroll) to go back to steering.
+  const onTouchStart = (e: RTouchEvent) => {
+    if (!narrow) return
+    swipe.current = { y: e.touches[0].clientY, top: e.currentTarget.scrollTop <= 0 }
+  }
+  const onTouchEnd = (e: RTouchEvent) => {
+    const s = swipe.current
+    swipe.current = null
+    if (!narrow || !s || !s.top) return
+    if (e.changedTouches[0].clientY - s.y > 70) collapse()
+  }
   return (
-    <article key={panel} className={`hud__panel ${panel === 'apps' ? 'is-denied' : ''}`} aria-labelledby="panel-title">
+    <article key={panel} className={`hud__panel ${panel === 'apps' ? 'is-denied' : ''}`} aria-labelledby="panel-title" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      {narrow && <div className="hud__panel-grip" aria-hidden="true" />}
       <header>
         <p className="hud__panel-hop">
           hop {String(meta.hop).padStart(2, '0')} · {meta.host} · {panel === 'apps' ? 'deny' : fmt(rtt[panel])}
@@ -186,12 +277,18 @@ function Panel() {
         <Body />
       </div>
       <footer>
-        <button type="button" className="primary" onClick={() => goTo(next)}>
-          {panel === 'apps' ? 'back to hop 02 →' : `next hop: ${sectionById(next)!.label} →`}
+        <button type="button" className="primary" onClick={() => goTo(nextOf(panel))}>
+          {nextLabel(panel)}
         </button>
-        <button type="button" onClick={closePanel}>
-          {touch ? 'close & steer' : '[esc] close'}
-        </button>
+        {narrow ? (
+          <button type="button" onClick={collapse}>
+            back to steering
+          </button>
+        ) : (
+          <button type="button" onClick={closePanel}>
+            {touch ? 'close & steer' : '[esc] close'}
+          </button>
+        )}
       </footer>
     </article>
   )

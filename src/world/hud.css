@@ -642,3 +642,90 @@
   user-select: text;
   -webkit-user-select: text;
 }
+
+/* phone arrival: peek card under the top HUD; joystick and hop buttons stay usable */
+.hud__peek {
+  display: none;
+}
+@media (max-width: 720px) {
+  .hud__peek {
+    display: grid;
+    gap: 4px;
+    top: calc(max(12px, env(safe-area-inset-top, 0px)) + 118px);
+    left: max(12px, env(safe-area-inset-left, 0px));
+    right: max(12px, env(safe-area-inset-right, 0px));
+    padding: 10px 12px 9px;
+    background: rgba(1, 8, 3, 0.97);
+    border: 1px solid #1a7a3a;
+    border-left: 3px solid var(--phosphor);
+    color: var(--bright);
+    text-shadow: none;
+    animation: peek-in 0.22s ease-out both;
+  }
+  .hud__peek.is-denied {
+    border-color: rgba(255, 79, 79, 0.5);
+    border-left-color: var(--fault);
+  }
+  .hud__peek-hop {
+    color: #3fae63;
+    font-size: 10.5px;
+  }
+  .hud__peek-title {
+    font: 400 30px/1 var(--f-display);
+    color: var(--bright);
+    text-shadow: 0 0 10px rgba(43, 212, 95, 0.55);
+  }
+  .hud__peek.is-denied .hud__peek-title {
+    color: var(--fault);
+    text-shadow: 0 0 10px rgba(255, 79, 79, 0.55);
+  }
+  .hud__peek-line {
+    font-size: 12.5px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  .hud__peek-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .hud__peek-actions button {
+    min-height: 36px;
+    color: var(--phosphor);
+  }
+  .hud__peek-actions .primary {
+    background: var(--phosphor) !important;
+    color: var(--tube) !important;
+    padding: 0 16px !important;
+    font-weight: 600;
+  }
+  .hud__peek-tip {
+    font-size: 10.5px;
+    color: #1a7a3a;
+  }
+  .hud__panel-grip {
+    justify-self: center;
+    width: 44px;
+    height: 4px;
+    border-radius: 2px;
+    background: #1a7a3a;
+    margin: -8px auto 0;
+  }
+  /* the peek card replaces the move hint while it is up */
+  .hud:has(.hud__peek) .hud__hint {
+    display: none;
+  }
+}
+@keyframes peek-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud__peek {
+    animation: none;
+  }
+}

@@ -12,6 +12,8 @@ interface WorldState {
   current: NodeId | null
   /** open arrival panel */
   panel: SectionId | null
+  /** phones: reading the full sheet (otherwise the panel shows as a small peek card) */
+  expanded: boolean
   /** node ids in the order first reached (traceroute order) */
   visited: NodeId[]
   /** RTT (ms) recorded when each node was first reached */
@@ -32,6 +34,8 @@ interface WorldState {
   leave: (id: NodeId) => void
   openPanel: (id: SectionId) => void
   closePanel: () => void
+  expand: () => void
+  collapse: () => void
   goTo: (id: NodeId) => void
   stopAutopilot: () => void
   deny: (rtt: number) => void
@@ -43,6 +47,7 @@ export const useWorld = create<WorldState>((set, get) => ({
   quality: 'high',
   current: null,
   panel: null,
+  expanded: false,
   visited: ['gateway'],
   rtt: { gateway: 0.412 },
   autopilot: null,
@@ -68,21 +73,24 @@ export const useWorld = create<WorldState>((set, get) => ({
   leave: (id) => {
     const s = get()
     if (s.current !== id) return
-    set({ current: null, panel: s.panel === id ? null : s.panel })
+    set({ current: null, panel: s.panel === id ? null : s.panel, expanded: s.panel === id ? false : s.expanded })
   },
-  openPanel: (id) => set((s) => ({ panel: id, arrivals: s.arrivals + 1 })),
-  closePanel: () => set({ panel: null }),
-  goTo: (id) => set({ autopilot: id, panel: null, moved: true }),
+  openPanel: (id) => set((s) => ({ panel: id, expanded: false, arrivals: s.arrivals + 1 })),
+  closePanel: () => set({ panel: null, expanded: false }),
+  expand: () => set({ expanded: true }),
+  collapse: () => set({ expanded: false }),
+  goTo: (id) => set({ autopilot: id, panel: null, expanded: false, moved: true }),
   stopAutopilot: () => set({ autopilot: null }),
   deny: (rtt) =>
     set((s) => ({
       denials: s.denials + 1,
       panel: 'apps',
+      expanded: false,
       current: 'apps',
       visited: s.visited.includes('apps') ? s.visited : [...s.visited, 'apps'],
       rtt: s.rtt.apps ? s.rtt : { ...s.rtt, apps: rtt },
     })),
-  respawn: () => set((s) => ({ respawns: s.respawns + 1, autopilot: null, panel: null, current: null })),
+  respawn: () => set((s) => ({ respawns: s.respawns + 1, autopilot: null, panel: null, expanded: false, current: null })),
 }))
 
 /** Per-frame packet telemetry. Mutable on purpose: read in render loops, never in React render. */

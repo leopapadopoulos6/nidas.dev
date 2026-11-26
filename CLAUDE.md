@@ -26,6 +26,7 @@ Testing the 3D view in headless Chrome: the boot script sends bots and headless 
 ## Conventions
 
 - One route (`/:section?`) serves `/`, `/2d` and every section, so navigation never remounts the world. The open panel *is* the URL: `/about`, `/experience`, `/contact`, `/apps`.
+- Phones (≤720 px): arriving at a hop shows a small peek card (title, one-line teaser from `src/site/teaser.ts`, read / next hop) and keeps the joystick and hop buttons usable; driving out of the ring closes it. "read" opens the full sheet (steering pauses; swipe down or "back to steering" returns). Desktop shows the side panel.
 - The 2D page must always contain every piece of content. If you add content, add it to `src/content` and render it in a body component; never 3D-only.
 - Colors come from the Phosphor tokens (`src/site/phosphor.css`, `src/world/theme.ts`). `--fault` red means ACCESS DENIED and nothing else.
 - Build 3D in code (geometry, shaders, postprocessing). Third-party assets and fonts must be CC0, MIT or OFL and logged in `CREDITS.md`. Never copy code, models, textures or distinctive designs from other portfolios.
