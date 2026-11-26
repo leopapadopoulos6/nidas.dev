@@ -1,4 +1,4 @@
-import { Component, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
@@ -58,6 +58,8 @@ class SceneBoundary extends Component<{ onError: (e: Error, componentStack: stri
 // Waits between rebuild attempts within one incident (ms).
 const BACKOFF = [600, 1500, 3000, 6000]
 
+const GL = { antialias: false, powerPreference: 'high-performance' as const, stencil: false }
+
 const coarsePointer = () => typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches
 
 function hideBoot() {
@@ -86,6 +88,9 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   const [scene, setScene] = useState(0)
   const [trouble, setTrouble] = useState<null | 'recovering' | 'stuck'>(null)
   const [lowPower, setLowPower] = useState(false)
+  // Foreground resets this visit: after one, a small chip offers the crash details (one tap to copy).
+  const [resetCount, setResetCount] = useState(0)
+  const [reportShown, setReportShown] = useState(true)
   const resets = useRef<number[]>([])
   // Only the canvas currently on screen may report trouble: R3F force-drops the context of a canvas it
   // tears down, and that must not count as a new failure.
@@ -138,6 +143,10 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
       diag.current.log.push(`${kind === 'lost' ? 'L' : 'E'}${at}s${background ? '(bg)' : ''}`)
       console.warn(`[nidas.dev] 3D scene reset: ${kind}${detail ? ` (${detail})` : ''}${background ? ' while in background' : ''}`)
       setTrouble('recovering')
+      if (!background) {
+        setResetCount((n) => n + 1)
+        setReportShown(true)
+      }
       if (!pinnedFx()) useWorld.getState().setQuality('low')
       setLowPower(true)
 
@@ -168,12 +177,16 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
     [remount, giveUp],
   )
 
-  const [copied, setCopied] = useState(false)
+  // 'idle' | 'copied' | 'manual' (the clipboard refused: show the text so it can be selected by hand)
+  const [copied, setCopied] = useState<'idle' | 'copied' | 'manual'>('idle')
+  const diagText = () =>
+    [`nidas.dev 3D diagnostics · ${__BUILD__} · ${navigator.userAgent}`, `log: ${diag.current.log.join(' ')}`, `fx ${useWorld.getState().quality} · ${diag.current.info}`, ...diag.current.errors].join('\n')
   const copyDiag = useCallback(() => {
-    const text = [`nidas.dev 3D diagnostics · ${__BUILD__} · ${navigator.userAgent}`, `log: ${diag.current.log.join(' ')}`, `fx ${useWorld.getState().quality} · ${diag.current.info}`, ...diag.current.errors].join('\n')
-    navigator.clipboard?.writeText(text).then(
-      () => setCopied(true),
-      () => setCopied(false),
+    const text = diagText()
+    if (!navigator.clipboard) return setCopied('manual')
+    navigator.clipboard.writeText(text).then(
+      () => setCopied('copied'),
+      () => setCopied('manual'),
     )
   }, [])
 
@@ -288,8 +301,33 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
   }, [deny])
   const pick = useCallback((id: NodeId) => useWorld.getState().goTo(id), [])
 
+  // The scene tree is built once per scene rebuild: hop changes and URL changes then only re-render the
+  // components that subscribe to them, not the whole scene (which allocated GPU objects on every render).
+  const sceneTree = useMemo(
+    () => (
+      <PerformanceMonitor onDecline={() => !pinnedFx() && useWorld.getState().setQuality('low')} flipflops={2}>
+        <Suspense fallback={null}>
+          <Physics gravity={[0, 0, 0]} timeStep={1 / 60}>
+            <District onPick={pick} onFirewall={hitFirewall} labels={labelLayer} />
+            <Packet onArrive={arrive} onDeny={deny} />
+            <Ready />
+          </Physics>
+        </Suspense>
+        <CameraRig />
+        <Effects />
+      </PerformanceMonitor>
+    ),
+    [pick, hitFirewall, arrive, deny],
+  )
+  // Camera starts above the packet's current spot; fixed per scene so re-renders never touch it.
+  const camera = useMemo(
+    () => ({ fov: theme.camera.fov, near: 0.1, far: 420, position: [packet.pos.x, 14, packet.pos.z + 14] as [number, number, number] }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scene],
+  )
+
   // Phones get a lower render resolution (graphics memory is the usual reason a phone drops the 3D view).
-  const dpr: [number, number] = lowPower ? [1, 1] : coarsePointer() ? [1, 1.25] : [1, 1.75]
+  const dpr = useMemo<[number, number]>(() => (lowPower ? [1, 1] : coarsePointer() ? [1, 1.25] : [1, 1.75]), [lowPower])
 
   return (
     <div className={`world ${quality === 'low' ? 'is-lite' : ''}`}>
@@ -308,8 +346,8 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
           <Canvas
             className="world__canvas"
             dpr={dpr}
-            gl={{ antialias: false, powerPreference: 'high-performance', stencil: false }}
-            camera={{ fov: theme.camera.fov, near: 0.1, far: 420, position: [packet.pos.x, 14, packet.pos.z + 14] }}
+            gl={GL}
+            camera={camera}
             onCreated={({ scene: s, gl }) => {
               const canvas = gl.domElement
               liveCanvas.current = canvas
@@ -330,17 +368,7 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
             }}
             aria-label="3D network district. Use the autopilot buttons or the text version to navigate."
           >
-            <PerformanceMonitor onDecline={() => !pinnedFx() && useWorld.getState().setQuality('low')} flipflops={2}>
-              <Suspense fallback={null}>
-                <Physics gravity={[0, 0, 0]} timeStep={1 / 60}>
-                  <District onPick={pick} onFirewall={hitFirewall} labels={labelLayer} />
-                  <Packet onArrive={arrive} onDeny={deny} />
-                  <Ready />
-                </Physics>
-              </Suspense>
-              <CameraRig />
-              <Effects />
-            </PerformanceMonitor>
+            {sceneTree}
           </Canvas>
         </SceneBoundary>
       )}
@@ -369,9 +397,21 @@ export default function WorldLayer({ section, onExit, onFail }: WorldLayerProps)
               read the text version
             </button>
             <button type="button" onClick={copyDiag}>
-              {copied ? 'copied' : 'copy diagnostics'}
+              {copied === 'copied' ? 'copied' : 'copy diagnostics'}
             </button>
           </div>
+          {copied === 'manual' && <pre className="world__diag-errors">{diagText()}</pre>}
+        </div>
+      )}
+      {trouble === null && resetCount > 0 && reportShown && !panel && (
+        <div className="world__report" role="status">
+          <button type="button" onClick={copyDiag}>
+            {copied === 'copied' ? '> crash details copied' : `> 3D reset ×${resetCount} · copy crash details`}
+          </button>
+          <button type="button" className="world__report-x" aria-label="hide crash details" onClick={() => setReportShown(false)}>
+            ×
+          </button>
+          {copied === 'manual' && <pre className="world__diag-errors">{diagText()}</pre>}
         </div>
       )}
     </div>

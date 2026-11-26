@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { CuboidCollider, CylinderCollider, RigidBody } from '@react-three/rapier'
@@ -19,7 +19,7 @@ function useTime() {
   return t
 }
 
-function Floor() {
+const Floor = memo(function Floor() {
   const uniforms = useMemo(
     () =>
       fogged({
@@ -40,9 +40,9 @@ function Floor() {
       <shaderMaterial vertexShader={S.floorVert} fragmentShader={S.floorFrag} uniforms={uniforms} fog />
     </mesh>
   )
-}
+})
 
-function City() {
+const City = memo(function City() {
   const buildings = useMemo(() => buildCity(11), [])
   const geom = useMemo(() => new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0), [])
   const time = useTime()
@@ -64,7 +64,7 @@ function City() {
   )
   const ref = useRef<THREE.InstancedMesh>(null)
   useFrame(() => (uniforms.uTime.value = time.current))
-  const setup = (m: THREE.InstancedMesh | null) => {
+  const setup = useCallback((m: THREE.InstancedMesh | null) => {
     ref.current = m
     if (!m) return
     const o = new THREE.Object3D()
@@ -76,7 +76,7 @@ function City() {
     })
     m.instanceMatrix.needsUpdate = true
     m.computeBoundingSphere()
-  }
+  }, [buildings])
   return (
     <>
       <instancedMesh ref={setup} args={[geom, undefined, buildings.length]} frustumCulled={false}>
@@ -96,20 +96,19 @@ function City() {
       </RigidBody>
     </>
   )
-}
+})
 
-function Links() {
+const Links = memo(function Links() {
   const time = useTime()
   const mats = useRef<THREE.ShaderMaterial[]>([])
   useFrame(() => mats.current.forEach((m) => m && (m.uniforms.uTime.value = time.current)))
-  return (
-    <group>
-      {links.map((l, i) => {
+  // Geometry and uniforms for every link, built once.
+  const items = useMemo(
+    () =>
+      links.map((l) => {
         const dx = l.to[0] - l.from[0]
         const dz = l.to[1] - l.from[1]
         const len = Math.hypot(dx, dz)
-        const ang = Math.atan2(-dz, dx)
-        const mid: [number, number, number] = [(l.from[0] + l.to[0]) / 2, 0, (l.from[1] + l.to[1]) / 2]
         const mk = (glow: boolean) =>
           fogged({
             uColor: { value: c(l.dead ? '#7a1e1e' : theme.link, glow ? 0.9 : 1.2) },
@@ -119,6 +118,13 @@ function Links() {
             uDead: { value: l.dead ? 1 : 0 },
             uGlowStrip: { value: glow ? 1 : 0 },
           })
+        return { len, ang: Math.atan2(-dz, dx), mid: [(l.from[0] + l.to[0]) / 2, 0, (l.from[1] + l.to[1]) / 2] as [number, number, number], core: mk(false), glow: mk(true) }
+      }),
+    [],
+  )
+  return (
+    <group>
+      {items.map(({ len, ang, mid, core, glow }, i) => {
         return (
           <group key={i} position={mid} rotation-y={ang}>
             <mesh rotation-x={-Math.PI / 2} position-y={0.06}>
@@ -129,7 +135,7 @@ function Links() {
                 }}
                 vertexShader={S.linkVert}
                 fragmentShader={S.linkFrag}
-                uniforms={mk(false)}
+                uniforms={core}
                 fog
               />
             </mesh>
@@ -141,7 +147,7 @@ function Links() {
                 }}
                 vertexShader={S.linkVert}
                 fragmentShader={S.linkFrag}
-                uniforms={mk(true)}
+                uniforms={glow}
                 transparent
                 depthWrite={false}
                 blending={THREE.AdditiveBlending}
@@ -153,10 +159,19 @@ function Links() {
       })}
     </group>
   )
-}
+})
 
-function Edged({ size, position, color = theme.edge, k = 1 }: { size: [number, number, number]; position: [number, number, number]; color?: string; k?: number }) {
-  const edges = useMemo(() => new THREE.EdgesGeometry(new THREE.BoxGeometry(...size)), [size])
+const Edged = memo(function Edged({ size, position, color = theme.edge, k = 1 }: { size: [number, number, number]; position: [number, number, number]; color?: string; k?: number }) {
+  const [sx, sy, sz] = size
+  // Keyed on the size values (inline arrays are new every render) and freed when replaced or unmounted.
+  const edges = useMemo(() => {
+    const box = new THREE.BoxGeometry(sx, sy, sz)
+    const e = new THREE.EdgesGeometry(box)
+    box.dispose()
+    return e
+  }, [sx, sy, sz])
+  useEffect(() => () => edges.dispose(), [edges])
+  const lineColor = useMemo(() => c(color, 1.6 * k), [color, k])
   return (
     <group position={position}>
       <mesh>
@@ -164,11 +179,11 @@ function Edged({ size, position, color = theme.edge, k = 1 }: { size: [number, n
         <meshBasicMaterial color={theme.fillTop} polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
       </mesh>
       <lineSegments geometry={edges}>
-        <lineBasicMaterial color={c(color, 1.6 * k)} />
+        <lineBasicMaterial color={lineColor} />
       </lineSegments>
     </group>
   )
-}
+})
 
 function useArrow() {
   return useMemo(() => {
@@ -221,7 +236,7 @@ function Switch() {
     for (let s = 0; s < 3; s++) for (let r = 0; r < 2; r++) for (let i = 0; i < 18; i++) p.push([-3.8 + i * 0.45, 0.62 + s * 1.15 + r * 0.26, 1.82])
     return p
   }, [])
-  const setup = (m: THREE.InstancedMesh | null) => {
+  const setup = useCallback((m: THREE.InstancedMesh | null) => {
     if (!m) return
     const o = new THREE.Object3D()
     ports.forEach((p, i) => {
@@ -233,7 +248,7 @@ function Switch() {
     })
     m.instanceMatrix.needsUpdate = true
     if (m.instanceColor) m.instanceColor.needsUpdate = true
-  }
+  }, [ports])
   return (
     <group rotation-y={-0.5}>
       {[0, 1, 2].map((s) => (
@@ -338,7 +353,7 @@ function Beacon({ color, height = 46 }: { color: THREE.Color; height?: number })
 
 const labelY: Record<HopNode['kind'], number> = { gateway: 3, router: 5.5, switch: 6.5, ap: 12.5, firewall: 9 }
 
-function NodeSite({ node, active, onPick, labels }: { node: HopNode; active: boolean; onPick: (id: NodeId) => void; labels: React.RefObject<HTMLDivElement | null> }) {
+const NodeSite = memo(function NodeSite({ node, active, onPick, labels }: { node: HopNode; active: boolean; onPick: (id: NodeId) => void; labels: React.RefObject<HTMLDivElement | null> }) {
   const ringCol = useMemo(() => c(active ? theme.active : theme.ring, active ? 2.6 : 1.8), [active])
   const beam = useMemo(() => c(node.kind === 'firewall' ? '#ff4f4f' : active ? theme.active : theme.ring, active ? 0.9 : 1.2), [active, node.kind])
   const label = node.kind === 'gateway' ? 'you' : node.kind === 'firewall' ? '/apps' : sectionById(node.id)?.label
@@ -390,10 +405,10 @@ function NodeSite({ node, active, onPick, labels }: { node: HopNode; active: boo
       </Html>
     </group>
   )
-}
+})
 
 /** Static colliders for the devices in each plaza and the firewall. */
-function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
+const DeviceColliders = memo(function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
   const at = (id: NodeId) => nodes.find((n) => n.id === id)!.pos
   const [ax, az] = at('about')
   const [ex, ez] = at('experience')
@@ -411,7 +426,7 @@ function DeviceColliders({ onFirewall }: { onFirewall: () => void }) {
       </RigidBody>
     </>
   )
-}
+})
 
 export default function District({ onPick, onFirewall, labels }: { onPick: (id: NodeId) => void; onFirewall: () => void; labels: React.RefObject<HTMLDivElement | null> }) {
   const current = useWorld((s) => s.current)

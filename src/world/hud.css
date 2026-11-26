@@ -550,6 +550,47 @@
 }
 
 /* scene rebuild notice and the "keeps resetting" choice (stay in 3D unless the visitor picks text) */
+.world__report {
+  position: absolute;
+  z-index: 30;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(max(18px, env(safe-area-inset-bottom, 0px)) + 44px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  max-width: min(360px, calc(100vw - 24px));
+  pointer-events: auto;
+}
+.world__report button {
+  font: 12px/1.4 var(--f-mono);
+  color: var(--bright);
+  background: rgba(1, 8, 3, 0.9);
+  border: 1px solid var(--dim);
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.world__report button:hover,
+.world__report button:focus-visible {
+  color: var(--hot);
+  border-color: var(--phosphor);
+}
+.world__report .world__report-x {
+  padding: 6px 9px;
+}
+.world__report pre {
+  flex-basis: 100%;
+  max-height: 40vh;
+}
+@media (max-width: 720px) {
+  /* Phones: under the stats, clear of the joystick and its hint (the peek card uses this spot only while a
+     hop is open, and the chip hides then). */
+  .world__report {
+    top: calc(max(18px, env(safe-area-inset-top, 0px)) + 118px);
+    bottom: auto;
+  }
+}
+
 .world__notice {
   position: absolute;
   z-index: 30;
